@@ -93,8 +93,8 @@ public class TestProvider extends AndroidTestCase {
         // assert to see if we got the correct type
         assertEquals(UserEntry.CONTENT_TYPE, type);
 
-        // content://com.hitick.app/users/9953652224/abc123
-        type = mContext.getContentResolver().getType(UserEntry.buildContentUri("+919953652224", "abc123"));
+        // content://com.hitick.app/users/23001
+        type = mContext.getContentResolver().getType(UserEntry.buildUsersUri(23006));
         // assert to see if we got the correct type
         assertEquals(UserEntry.CONTENT_ITEM_TYPE, type);
 
@@ -158,7 +158,7 @@ public class TestProvider extends AndroidTestCase {
             Note that the single user URI can be easily obtained from our Helper Methods in the contract class
         */
         cursor = mContext.getContentResolver().query(
-                UserEntry.buildContentUri("+919953652224", "abc123"),
+                UserEntry.buildUsersUri(23006),
                 null,
                 null,
                 null,
@@ -311,7 +311,7 @@ public class TestProvider extends AndroidTestCase {
         String testMobileNumber = "+919953652224";
         String testPassword = "abc123";
         String testEmail = "sparsh.bansal17895@gmail.com";
-
+        long testUserId = 23006;
         /*
             Content Values object to put values into the database
         */
@@ -322,7 +322,7 @@ public class TestProvider extends AndroidTestCase {
         contentValues.put(UserEntry.COLUMN_EMAIL, testEmail);
         contentValues.put(UserEntry.COLUMN_PASSWORD, testPassword);
         contentValues.put(UserEntry.COLUMN_USER_GROUP_PARTICIPATION_TABLE, TEST_GROUP_PARTICIPATION_TABLE);
-
+        contentValues.put(UserEntry.COLUMN_USER_ID , testUserId);
         return contentValues;
     }
 
@@ -338,6 +338,7 @@ public class TestProvider extends AndroidTestCase {
         final int testGroupMembers = 30;
         final String testGroupAdminMob = "+919923444322";
         final String testGroupAdminName = "Robin Tomar";
+        final long testGroupId = 230234;
 
         /*
             Clear the content values object and put the data to be inserted in the group table
@@ -349,7 +350,7 @@ public class TestProvider extends AndroidTestCase {
         contentValues.put(GroupEntry.COLUMN_GROUP_ADMINISTRATOR_MOBILE, testGroupAdminMob);
         contentValues.put(GroupEntry.COLUMN_GROUP_ADMINISTRATOR_NAME, testGroupAdminName);
         contentValues.put(GroupEntry.COLUMN_GROUP_DETAILS, TEST_GROUP_DETAILS_TABLE);
-
+        contentValues.put(GroupEntry.COLUMN_GROUP_ID , testGroupId);
         return contentValues;
     }
 

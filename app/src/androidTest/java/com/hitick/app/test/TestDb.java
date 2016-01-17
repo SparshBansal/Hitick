@@ -208,6 +208,7 @@ public class TestDb extends AndroidTestCase {
         String testMobileNumber = "+919953652224";
         String testPassword = "abc123";
         String testEmail = "sparsh.bansal17895@gmail.com";
+        long testUserId = 230002;
 
         /*
             Content Values object to put values into the database
@@ -219,7 +220,7 @@ public class TestDb extends AndroidTestCase {
         contentValues.put(UserEntry.COLUMN_EMAIL, testEmail);
         contentValues.put(UserEntry.COLUMN_PASSWORD, testPassword);
         contentValues.put(UserEntry.COLUMN_USER_GROUP_PARTICIPATION_TABLE, TEST_GROUP_PARTICIPATION_TABLE);
-
+        contentValues.put(UserEntry.COLUMN_USER_ID , testUserId);
         return contentValues;
     }
 
@@ -235,6 +236,7 @@ public class TestDb extends AndroidTestCase {
         final int testGroupMembers = 30;
         final String testGroupAdminMob = "+919923444322";
         final String testGroupAdminName = "Robin Tomar";
+        final long testGroupId = 230234;
 
         /*
             Clear the content values object and put the data to be inserted in the group table
@@ -246,7 +248,7 @@ public class TestDb extends AndroidTestCase {
         contentValues.put(GroupEntry.COLUMN_GROUP_ADMINISTRATOR_MOBILE, testGroupAdminMob);
         contentValues.put(GroupEntry.COLUMN_GROUP_ADMINISTRATOR_NAME, testGroupAdminName);
         contentValues.put(GroupEntry.COLUMN_GROUP_DETAILS, TEST_GROUP_DETAILS_TABLE);
-
+        contentValues.put(GroupEntry.COLUMN_GROUP_ID , testGroupId);
         return contentValues;
     }
 

@@ -95,7 +95,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "CREATE TABLE " + DatabaseContract.GroupEntry.TABLE_NAME + " (" +
 
                         DatabaseContract.GroupEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        DatabaseContract.GroupEntry.COLUMN_GROUP_ID + " INTEGER NOT NULL" +
+                        DatabaseContract.GroupEntry.COLUMN_GROUP_ID + " INTEGER NOT NULL, " +
                         DatabaseContract.GroupEntry.COLUMN_GROUP_NAME + " TEXT NOT NULL, " +
                         DatabaseContract.GroupEntry.COLUMN_GROUP_PASSWORD + " TEXT NOT NULL, " +
                         DatabaseContract.GroupEntry.COLUMN_GROUP_MEMBERS + " INTEGER NOT NULL, " +

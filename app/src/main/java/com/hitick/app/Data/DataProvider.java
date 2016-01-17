@@ -29,7 +29,8 @@ public class DataProvider extends ContentProvider {
         the type of URI using the Uri Matcher Object
     */
     private static final int USERS = 100;
-    private static final int USER_GROUP_PARTICIPATION = 101;
+    private static final int USERS_ID = 101;
+    private static final int USER_GROUP_PARTICIPATION = 102;
     private static final int GROUPS = 103;
     private static final int GROUPS_ID = 104;
     private static final int GROUP_DETAILS = 105;
@@ -59,34 +60,33 @@ public class DataProvider extends ContentProvider {
 
         switch (match) {
             case USERS:
-                /**If the uri has an appended id we return the specific row else we return the
-                 * entire table*/
-                final long USER_ID = ContentUris.parseId(uri);
+                retCursor = mDatabaseHelper.getWritableDatabase().query(
+                        DatabaseContract.UserEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
 
-                // If the USER_ID is not -1 then return the specific row
-                if (USER_ID != -1) {
+            case USERS_ID:
+                final long userId = ContentUris.parseId(uri);
+                if (userId != -1) {
                     final String SELECTION = DatabaseContract.UserEntry.COLUMN_USER_ID + "=?";
-                    final String[] SELECTION_ARGS = new String[]{String.valueOf(USER_ID)};
-                    retCursor = mDatabaseHelper.getReadableDatabase().query(
+                    final String[] SELECTION_ARGS = new String[]{String.valueOf(userId)};
+                    retCursor = mDatabaseHelper.getWritableDatabase().query(
                             DatabaseContract.UserEntry.TABLE_NAME,
                             projection,
                             SELECTION,
                             SELECTION_ARGS,
                             null,
                             null,
-                            sortOrder);
-                }
-                // Else return the entire table
-                else {
-                    retCursor = mDatabaseHelper.getReadableDatabase().query(
-                            DatabaseContract.UserEntry.TABLE_NAME,
-                            projection,
-                            selection,
-                            selectionArgs,
-                            null,
-                            null,
                             sortOrder
                     );
+                } else {
+                    Log.d(LOG_TAG, "No Appended Id found");
                 }
                 break;
 
@@ -165,16 +165,12 @@ public class DataProvider extends ContentProvider {
         int match = sUriMatcher.match(uri);
         switch (match) {
             /*
-                For the match with Users Uri we have to check whether it is with Mobile Number and Password
-                If Mobile and Password are appended, then we return a single item'
-                If Mobile and Password are not appended then we return the directory of items
+
             */
             case USERS:
-                if (ContentUris.parseId(uri) == -1)
-                    return DatabaseContract.UserEntry.CONTENT_TYPE;
-                else
-                    return DatabaseContract.UserEntry.CONTENT_ITEM_TYPE;
-
+                return DatabaseContract.UserEntry.CONTENT_TYPE;
+            case USERS_ID:
+                return DatabaseContract.UserEntry.CONTENT_ITEM_TYPE;
             case USER_GROUP_PARTICIPATION:
                 return DatabaseContract.UserParticipationEntry.SUB_CONTENT_TYPE;
             case GROUPS:
@@ -331,7 +327,7 @@ public class DataProvider extends ContentProvider {
          we can do the respective query */
 
         uriMatcher.addURI(CONTENT_AUTHORITY, DatabaseContract.PATH_USERS, USERS);
-
+        uriMatcher.addURI(CONTENT_AUTHORITY, DatabaseContract.PATH_USERS + "/#", USERS_ID);
         /*
             Since every group participation query URI will have the table name attached with the
             SUB_CONTENT_URI , therefore we match it with SUB_CONTENT_URI plus the table name.
