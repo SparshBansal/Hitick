@@ -3,6 +3,7 @@ package com.hitick.app.Data;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.IntentFilter;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
@@ -57,15 +58,27 @@ public class DataProvider extends ContentProvider {
         Cursor retCursor = null;
 
         switch (match) {
-
-
             case USERS:
-                /* If the Uri has the mobileNumber and name as query parameters then we query
-                 * according to that, otherwise we return the entire table */
-                String mobileNumber = DatabaseContract.UserEntry.getMobileNumberFromUri(uri);
-                String password = DatabaseContract.UserEntry.getPasswordFromUri(uri);
-                if (mobileNumber == null && password == null) {
-                    retCursor = mDatabaseHelper.getWritableDatabase().query(
+                /**If the uri has an appended id we return the specific row else we return the
+                 * entire table*/
+                final long USER_ID = ContentUris.parseId(uri);
+
+                // If the USER_ID is not -1 then return the specific row
+                if (USER_ID != -1) {
+                    final String SELECTION = DatabaseContract.UserEntry.COLUMN_USER_ID + "=?";
+                    final String[] SELECTION_ARGS = new String[]{String.valueOf(USER_ID)};
+                    retCursor = mDatabaseHelper.getReadableDatabase().query(
+                            DatabaseContract.UserEntry.TABLE_NAME,
+                            projection,
+                            SELECTION,
+                            SELECTION_ARGS,
+                            null,
+                            null,
+                            sortOrder);
+                }
+                // Else return the entire table
+                else {
+                    retCursor = mDatabaseHelper.getReadableDatabase().query(
                             DatabaseContract.UserEntry.TABLE_NAME,
                             projection,
                             selection,
@@ -75,22 +88,7 @@ public class DataProvider extends ContentProvider {
                             sortOrder
                     );
                 }
-                /* If the uri has the mobileNumber and Password we return the row with the user details */
-                else {
-                    retCursor = mDatabaseHelper.getWritableDatabase().query(
-                            DatabaseContract.UserEntry.TABLE_NAME,
-                            projection,
-                            DatabaseContract.UserEntry.COLUMN_MOBILE_NUMBER + " ='" + mobileNumber +
-                                    "' AND " + DatabaseContract.UserEntry.COLUMN_PASSWORD + "='" +
-                                    password + "'",
-                            null,
-                            null,
-                            null,
-                            sortOrder
-                    );
-                }
                 break;
-
 
             case USER_GROUP_PARTICIPATION:
                 // first get the table name from the URI using the helper method
@@ -172,7 +170,7 @@ public class DataProvider extends ContentProvider {
                 If Mobile and Password are not appended then we return the directory of items
             */
             case USERS:
-                if (DatabaseContract.UserEntry.getMobileNumberFromUri(uri) == null)
+                if (ContentUris.parseId(uri) == -1)
                     return DatabaseContract.UserEntry.CONTENT_TYPE;
                 else
                     return DatabaseContract.UserEntry.CONTENT_ITEM_TYPE;

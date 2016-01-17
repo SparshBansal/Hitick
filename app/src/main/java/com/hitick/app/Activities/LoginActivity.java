@@ -9,8 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-import com.hitick.app.Fragments.SignInDetailsFragment;
-import com.hitick.app.Fragments.SignUpDetailsFragment;
+import com.hitick.app.Fragments.SignInFragment;
+import com.hitick.app.Fragments.SignUpFragment;
 import com.hitick.app.R;
 
 
@@ -44,9 +44,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         android.support.v4.app.FragmentTransaction transaction = manager.beginTransaction();
 
         if (savedInstanceState == null) {
-            transaction.add(R.id.container, new SignUpDetailsFragment());
+            transaction.add(R.id.container, new SignUpFragment());
         } else {
-            transaction.replace(R.id.container, new SignUpDetailsFragment());
+            transaction.replace(R.id.container, new SignUpFragment());
         }
 
         transaction.commit();
@@ -82,14 +82,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 //Replace the current fragment with Sign In Details Fragment
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.container, new SignInDetailsFragment())
+                        .replace(R.id.container, new SignInFragment())
                         .commit();
                 break;
             case R.id.bSignUp:
                 //Replace the current fragment with Sign Up Details Fragment
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.container , new SignUpDetailsFragment())
+                        .replace(R.id.container , new SignUpFragment())
                         .commit();
                 break;
         }

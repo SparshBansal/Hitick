@@ -20,7 +20,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.hitick.app.Network.VolleySingleton;
 import com.hitick.app.R;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -29,9 +28,9 @@ import java.util.Map;
 /**
  * Created by Sparsha on 12/7/2015.
  */
-public class SignInDetailsFragment extends Fragment {
+public class SignInFragment extends Fragment {
 
-    private static final String LOG_TAG = SignInDetailsFragment.class.getSimpleName();
+    private static final String LOG_TAG = SignInFragment.class.getSimpleName();
     private static EditText etMobile;
     private static EditText etPassword;
     private static Button bSignIn;
@@ -80,15 +79,16 @@ public class SignInDetailsFragment extends Fragment {
 
         //Setup the Request Queue and post the Request to the server
         RequestQueue mRequestQueue = VolleySingleton.getInstance().getRequestQueue();
-        StringRequest mStringRequest = new StringRequest(
+        JsonObjectRequest mSignInRequest = new JsonObjectRequest(
                 Request.Method.POST,
                 getContext().getString(R.string.URL_SIGN_IN),
-                new Response.Listener<String>() {
+                new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(String response) {
+                    public void onResponse(JSONObject response) {
                         Log.d(LOG_TAG, "Response Received");
-                        //Parse the Response to confirm Sign In..
-                        //On Successful Sign In , redirect to the Main Page..
+                        /** Check if the user entry is already in our database , if not there
+                         * then add the user to the user table , if already there then update*/
+
                     }
                 },
                 new Response.ErrorListener() {
@@ -111,7 +111,7 @@ public class SignInDetailsFragment extends Fragment {
                 return paramsMap;
             }
         };
-        mRequestQueue.add(mStringRequest);
+        mRequestQueue.add(mSignInRequest);
         return false;
     }
 }

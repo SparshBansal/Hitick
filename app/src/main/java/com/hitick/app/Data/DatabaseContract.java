@@ -83,30 +83,10 @@ public class DatabaseContract {
 
         /* Helper method to encode the URI's which will be used to query our database */
 
-        //Method to build the URI which will return the item from the user table on
-        //being given the mobileNumber and password
-        public static final Uri buildContentUri(String mobileNumber, String password) {
-            return CONTENT_URI.buildUpon().
-                    appendQueryParameter(COLUMN_MOBILE_NUMBER, mobileNumber).
-                    appendQueryParameter(COLUMN_PASSWORD, password).
-                    build();
-        }
-
         public static final Uri buildUsersUri(long _id) {
             return ContentUris.withAppendedId(CONTENT_URI, _id);
         }
 
-        /* Helper Methods to decode the Uri's */
-
-        //Method to decode the mobileNumber from the URI
-        public static String getMobileNumberFromUri(Uri uri) {
-            return uri.getQueryParameter(COLUMN_MOBILE_NUMBER);
-        }
-
-        //Method to decode the Password from the URI
-        public static String getPasswordFromUri(Uri uri) {
-            return uri.getQueryParameter(COLUMN_PASSWORD);
-        }
     }
 
     /*
@@ -160,7 +140,7 @@ public class DatabaseContract {
             return SUB_CONTENT_URI.buildUpon().appendPath(tableName).build();
         }
 
-    
+
 
         /* Decoder function used to abstract information from the URIs */
 

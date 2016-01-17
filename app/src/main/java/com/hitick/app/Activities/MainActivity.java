@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         getSupportLoaderManager().initLoader(SPINNER_LOADER_ID, null, this);
 
         spinnerAdapter = new SimpleCursorAdapter(this,
-                android.R.layout.simple_list_item_2,
+        android.R.layout.simple_list_item_2,
                 null,
                 new String[]{GroupEntry.COLUMN_GROUP_NAME, GroupEntry.COLUMN_GROUP_MEMBERS},
                 new int[]{android.R.id.text1, android.R.id.text2});

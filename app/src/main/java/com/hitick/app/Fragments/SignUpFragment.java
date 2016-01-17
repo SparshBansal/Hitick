@@ -14,20 +14,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.hitick.app.Broadcast_Receivers.SmsReceiver;
 import com.hitick.app.Network.VolleySingleton;
 import com.hitick.app.R;
+import com.hitick.app.Utility;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -37,10 +38,10 @@ import java.util.Random;
 /**
  * Created by Sparsha on 12/7/2015.
  */
-public class SignUpDetailsFragment extends Fragment implements View.OnClickListener {
+public class SignUpFragment extends Fragment implements View.OnClickListener {
 
 
-    private static final String LOG_TAG = SignUpDetailsFragment.class.getSimpleName();
+    private static final String LOG_TAG = SignUpFragment.class.getSimpleName();
     private static Button bSignUp;
     private static EditText etFirstName;
     private static EditText etLastName;
@@ -59,7 +60,7 @@ public class SignUpDetailsFragment extends Fragment implements View.OnClickListe
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         //Inflate the rootView and use it to initialize the instance variables
-        View rootView = inflater.inflate(R.layout.fragment_sign_up_details,container , false);
+        View rootView = inflater.inflate(R.layout.fragment_sign_up_details, container, false);
 
         //Find the button and set onClick Listener
         bSignUp = (Button) rootView.findViewById(R.id.bSignUp);
@@ -115,29 +116,27 @@ public class SignUpDetailsFragment extends Fragment implements View.OnClickListe
 
         //Send the user data to the Server using Volley Framework
         RequestQueue mRequestQueue = VolleySingleton.getInstance().getRequestQueue();
-        StringRequest mStringRequest = new StringRequest(
+        JsonObjectRequest mSignUpRequest = new JsonObjectRequest(
                 Request.Method.POST,
-                getContext().getString(R.string.URL_SIGN_UP),
-                new Response.Listener<String>() {
+                preferences.getString(getString(R.string.URL_SIGN_UP), ""),
+                new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(String response) {
-                        // Parse the response to check for successful signup, On Successful SignUp
-                        // redirect to the main activity
-
+                    public void onResponse(JSONObject response) {
+                        /**Parse the response from the server and insert the user
+                         * details into the database*/
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // Some error occurred, Notify the user to retry
-
+                        /**Some error occurred , notify the user to try again */
 
                     }
-                }){
+                }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 // Put the JSON data into a HashMap and send it to the server
-                Map<String,String> paramsMap = new HashMap<>();
+                Map<String, String> paramsMap = new HashMap<>();
                 paramsMap.put(getString(R.string.KEY_SIGNUP_JSON_FIRST_NAME),
                         preferences.getString(getContext().getString(R.string.KEY_PREFERENCE_FIRST_NAME), null));
                 paramsMap.put(getString(R.string.KEY_SIGNUP_JSON_LAST_NAME),
@@ -148,40 +147,16 @@ public class SignUpDetailsFragment extends Fragment implements View.OnClickListe
                         preferences.getString(getContext().getString(R.string.KEY_PREFERENCE_MOBILE_NUMBER), null));
                 paramsMap.put(getString(R.string.KEY_SIGNUP_JSON__PASSWORD),
                         preferences.getString(getContext().getString(R.string.KEY_PREFERENCE_PASSWORD), null));
-                return super.getParams();
+                return paramsMap;
             }
         };
-        mRequestQueue.add(mStringRequest);
+        mRequestQueue.add(mSignUpRequest);
     }
-
 
     //Helper Method to validate the mobile number entered by the user
     private void validateMobileNumber() {
-        final int VERIFICATION_CODE = generateVerificationCode();
-        sendSMS(VERIFICATION_CODE);
+        final int VERIFICATION_CODE = Utility.generateVerificationCode();
+        Utility.sendSMS(getActivity(), VERIFICATION_CODE);
     }
 
-
-    //Helper method to send sms to provided number
-    private void sendSMS(int VERIFICATION_CODE) {
-        //Get Saved telephone number
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String phoneNumber = preferences.getString(getString(R.string.KEY_PREFERENCE_MOBILE_NUMBER), "");
-        if (phoneNumber.equals("")) {
-            Log.d(LOG_TAG, "PHONE NUMBER NOT SAVED");
-            return;
-        }
-        try {
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phoneNumber, null, "" + VERIFICATION_CODE, null, null);
-        } catch (Exception e) {
-            Log.d(LOG_TAG, "Message not Sent");
-        }
-    }
-
-    //Helper method generate a Verification Code
-    private int generateVerificationCode() {
-        Random random = new Random(System.currentTimeMillis());
-        return 10000 + random.nextInt(80000);
-    }
 }

@@ -33,9 +33,9 @@
     <string name="KEY_SIGNIN_JSON_PASSWORD">password</string>
 
     <!-- Keys for JSON Post Object send to server during Sign Up -->
-    <string name="KEY_SIGNUP_JSON_FIRST_NAME">first name</string>
-    <string name="KEY_SIGNUP_JSON_LAST_NAME">last name</string>
-    <string name="KEY_SIGNUP_JSON_MOBILE">mobile</string>
+    <string name="KEY_SIGNUP_JSON_FIRST_NAME">firstname</string>
+    <string name="KEY_SIGNUP_JSON_LAST_NAME">lastname</string>
+    <string name="KEY_SIGNUP_JSON_MOBILE">mobile_number</string>
     <string name="KEY_SIGNUP_JSON__PASSWORD">password</string>
     <string name="KEY_SIGNUP_JSON_EMAIL">email</string>
 
