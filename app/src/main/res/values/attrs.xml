@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Customizable Attributes for the Pie Chart View -->
+    <declare-styleable name="PieView">
+        <attr name="slice_A_Color" format="color" />
+        <attr name="slice_B_Color" format="color" />
+        <attr name="slice_C_Color" format="color" />
+        <attr name="slice_labelSize" format="integer" />
+        <attr name="timer_textSize" format="integer" />
+        <attr name="timer_ringColor" format="color" />
+        <attr name="pieRadius" format="integer" />
+        <attr name="pieWidth" format="integer" />
+    </declare-styleable>
+</resources>
