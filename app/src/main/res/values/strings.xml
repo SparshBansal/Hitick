@@ -41,20 +41,15 @@
 
     <!-- Urls to communicate with the server -->
 
-
     <!-- Sign In / Sign Up Urls -->
     <string name="URL_SIGN_IN"></string>
     <string name="URL_SIGN_UP"></string>
+    <string name="URL_DETAILS"></string>
     <string name="title_activity_main">MainActivity</string>
 
+
     <!-- Keys for storing the details of the currently active user -->
-    <string name="KEY_CURRENT_USER_FIRST_NAME">KEY_CURRENT_USER_FIRST_NAME</string>
-    <string name="KEY_CURRENT_USER_LAST_NAME">KEY_CURRENT_USER_LAST_NAME</string>
-    <string name="KEY_CURRENT_USER_MOBILE_NUMBER">KEY_CURRENT_USER_MOBILE_NUMBER</string>
-    <string name="KEY_CURRENT_USER_EMAIL_ID">KEY_CURRENT_USER_EMAIL_ID</string>
-    <string name="KEY_CURRENT_USER_PASSWORD">KEY_CURRENT_USER_PASSWORD</string>
-    <string name="KEY_CURRENT_USER_GROUP_PARTCIPATION_TABLE">KEY_CURRENT_USER_GROUP_PARTCIPATION_TABLE</string>
     <string name="KEY_CURRENT_USER_ID">KEY_CURRENT_USER_ID</string>
-    <string name="URL_DETAILS" />
+
 
 </resources>

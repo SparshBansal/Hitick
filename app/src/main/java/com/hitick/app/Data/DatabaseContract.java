@@ -3,6 +3,7 @@ package com.hitick.app.Data;
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.provider.ContactsContract;
 
 /**
  * Created by Sparsha on 11/10/2015.
@@ -279,6 +280,44 @@ public class DatabaseContract {
         //Function to determine the Table Name from the given URI
         public static String getTableNameFromUri(Uri uri) {
             return uri.getPathSegments().get(1);
+        }
+    }
+
+    /**
+     * Special class to handle join queries, and notifying change whenever required
+     */
+    public static final class Joins {
+
+        // Base paths for the join queries
+        public static final String PATH_JOIN = "join";
+        public static final String PATH_USER_PARTICPIATION_WITH_GROUPS =
+                "user_participation_with_groups";
+
+        // Key for appending Table_Name parameters to end of the join queries
+        private static final String KEY_USER_PARTICIPATION_TABLE_NAME =
+                "key_user_partcipation_table_name";
+
+        // Base Uri for all the join queries
+        public static final Uri JOIN_BASE_CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_JOIN).build();
+
+        // CONTENT-TYPE and ITEM-TYPE strings
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/" +
+                CONTENT_AUTHORITY + "/" + PATH_JOIN + "/" + PATH_USER_PARTICPIATION_WITH_GROUPS;
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" +
+                CONTENT_AUTHORITY + "/" + PATH_JOIN + "/" + PATH_USER_PARTICPIATION_WITH_GROUPS;
+
+        // Method to create a join query uri between User-Participation-Table and Group-Table
+        public static final Uri buildUserPartcipationWithGroupUri(String userPartcipationTableName) {
+            return JOIN_BASE_CONTENT_URI.buildUpon()
+                    .appendPath(PATH_USER_PARTICPIATION_WITH_GROUPS)
+                    .appendQueryParameter(KEY_USER_PARTICIPATION_TABLE_NAME, userPartcipationTableName)
+                    .build();
+        }
+
+        // Method to decode get the Table Name from the join uri
+        public static final String getTableNameFromUserParticipationWithGroupUri(Uri uri) {
+            return uri.getQueryParameter(KEY_USER_PARTICIPATION_TABLE_NAME);
         }
     }
 }

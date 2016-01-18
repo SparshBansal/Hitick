@@ -11,6 +11,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
+import android.util.StringBuilderPrinter;
 
 /**
  * Created by Sparsha on 11/13/2015.
@@ -19,10 +20,14 @@ import android.util.Log;
 public class DataProvider extends ContentProvider {
 
     private static final String LOG_TAG = DataProvider.class.getSimpleName();
-    DatabaseHelper mDatabaseHelper;
+    private static DatabaseHelper mDatabaseHelper;
 
     //The URI Matcher used by this Content Provider
     private static final UriMatcher sUriMatcher = buildUriMatcher();
+
+    // SQLiteQueryBuilder for the join query
+    private static SQLiteQueryBuilder mUserParticipationWithGroupQueryBuilder;
+
 
     /*
         Integer Constants for the URI Matcher Class , they will be used to determine
@@ -31,9 +36,10 @@ public class DataProvider extends ContentProvider {
     private static final int USERS = 100;
     private static final int USERS_ID = 101;
     private static final int USER_GROUP_PARTICIPATION = 102;
-    private static final int GROUPS = 103;
-    private static final int GROUPS_ID = 104;
-    private static final int GROUP_DETAILS = 105;
+    private static final int USER_PARTICIPATION_WITH_GROUP = 103;
+    private static final int GROUPS = 104;
+    private static final int GROUPS_ID = 105;
+    private static final int GROUP_DETAILS = 106;
 
 
     /*
@@ -106,6 +112,11 @@ public class DataProvider extends ContentProvider {
                 );
                 break;
 
+            case USER_PARTICIPATION_WITH_GROUP:
+                tableName = DatabaseContract.Joins.getTableNameFromUserParticipationWithGroupUri(uri);
+                retCursor = queryUserParticipationWithGroup(tableName, projection, selection, selectionArgs, sortOrder);
+                break;
+
             case GROUPS:
                 retCursor = mDatabaseHelper.getWritableDatabase().query(
                         DatabaseContract.GroupEntry.TABLE_NAME,
@@ -173,6 +184,8 @@ public class DataProvider extends ContentProvider {
                 return DatabaseContract.UserEntry.CONTENT_ITEM_TYPE;
             case USER_GROUP_PARTICIPATION:
                 return DatabaseContract.UserParticipationEntry.SUB_CONTENT_TYPE;
+            case USER_PARTICIPATION_WITH_GROUP:
+                return DatabaseContract.Joins.CONTENT_TYPE;
             case GROUPS:
                 return DatabaseContract.GroupEntry.CONTENT_TYPE;
             case GROUPS_ID:
@@ -206,9 +219,12 @@ public class DataProvider extends ContentProvider {
                 _id = mDatabaseHelper
                         .getWritableDatabase()
                         .insert(tableName, null, contentValues);
-                if (_id > 0)
+                if (_id > 0) {
                     returnUri = uri;
-                else
+                    // Notify change on the join uri
+                    getContext().getContentResolver().notifyChange(
+                            DatabaseContract.Joins.JOIN_BASE_CONTENT_URI, null);
+                } else
                     throw new SQLException("Failed to insert row ");
                 break;
 
@@ -216,9 +232,12 @@ public class DataProvider extends ContentProvider {
                 _id = mDatabaseHelper
                         .getWritableDatabase()
                         .insert(DatabaseContract.GroupEntry.TABLE_NAME, null, contentValues);
-                if (_id > 0)
+                if (_id > 0) {
                     returnUri = DatabaseContract.GroupEntry.buildGroupsUri(_id);
-                else
+                    // Notify change on the join uri
+                    getContext().getContentResolver().notifyChange(
+                            DatabaseContract.Joins.JOIN_BASE_CONTENT_URI, null);
+                } else
                     throw new SQLException("Failed to insert row ");
                 break;
 
@@ -252,11 +271,18 @@ public class DataProvider extends ContentProvider {
                 returnRows = mDatabaseHelper
                         .getWritableDatabase()
                         .delete(DatabaseContract.GroupEntry.TABLE_NAME, selection, selectionArgs);
+                // Notify change on the join uri
+                getContext().getContentResolver().notifyChange(
+                        DatabaseContract.Joins.JOIN_BASE_CONTENT_URI, null);
+
                 break;
             case USER_GROUP_PARTICIPATION:
                 returnRows = mDatabaseHelper
                         .getWritableDatabase()
                         .delete(DatabaseContract.UserParticipationEntry.getTableNameFromUri(uri), selection, selectionArgs);
+                // Notify change on the join uri
+                getContext().getContentResolver().notifyChange(
+                        DatabaseContract.Joins.JOIN_BASE_CONTENT_URI, null);
                 break;
             case GROUP_DETAILS:
                 returnRows = mDatabaseHelper
@@ -293,11 +319,17 @@ public class DataProvider extends ContentProvider {
                 returnRows = mDatabaseHelper
                         .getWritableDatabase()
                         .update(DatabaseContract.GroupEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+                // Notify change on the join uri
+                getContext().getContentResolver().notifyChange(
+                        DatabaseContract.Joins.JOIN_BASE_CONTENT_URI,null);
                 break;
             case USER_GROUP_PARTICIPATION:
                 returnRows = mDatabaseHelper
                         .getWritableDatabase()
                         .update(DatabaseContract.UserParticipationEntry.getTableNameFromUri(uri), contentValues, selection, selectionArgs);
+                // Notify change on the join uri
+                getContext().getContentResolver().notifyChange(
+                        DatabaseContract.Joins.JOIN_BASE_CONTENT_URI,null);
                 break;
             case GROUP_DETAILS:
                 returnRows = mDatabaseHelper
@@ -333,6 +365,13 @@ public class DataProvider extends ContentProvider {
             SUB_CONTENT_URI , therefore we match it with SUB_CONTENT_URI plus the table name.
         */
         uriMatcher.addURI(CONTENT_AUTHORITY, DatabaseContract.PATH_USER_PARTICIPATION + "/*", USER_GROUP_PARTICIPATION);
+
+        /* Special Uri for join between user-participation and groups table */
+        uriMatcher.addURI(CONTENT_AUTHORITY,
+                DatabaseContract.Joins.PATH_JOIN +
+                        "/" + DatabaseContract.Joins.PATH_USER_PARTICPIATION_WITH_GROUPS,
+                USER_PARTICIPATION_WITH_GROUP);
+
         uriMatcher.addURI(CONTENT_AUTHORITY, DatabaseContract.PATH_GROUPS, GROUPS);
         uriMatcher.addURI(CONTENT_AUTHORITY, DatabaseContract.PATH_GROUPS + "/#", GROUPS_ID);
 
@@ -344,5 +383,29 @@ public class DataProvider extends ContentProvider {
 
 
         return uriMatcher;
+    }
+
+    /* Helper method to query the datbase for the join between the User Participation and Group Table*/
+    private static final Cursor queryUserParticipationWithGroup(String tableName,
+                                                                String[] projection,
+                                                                String selection,
+                                                                String[] selectionArgs,
+                                                                String sortOrder) {
+
+        mUserParticipationWithGroupQueryBuilder = new SQLiteQueryBuilder();
+        mUserParticipationWithGroupQueryBuilder.setTables(tableName + "INNER JOIN " +
+                DatabaseContract.GroupEntry.TABLE_NAME + " ON " +
+                DatabaseContract.UserParticipationEntry.COLUMN_GROUP_KEY + " = " +
+                DatabaseContract.GroupEntry._ID
+        );
+        return mUserParticipationWithGroupQueryBuilder.query(
+                mDatabaseHelper.getReadableDatabase(),
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
     }
 }
