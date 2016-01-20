@@ -21,7 +21,7 @@ public class Utility {
 
     /* Static method to the Table Name of the user group Participation Table ,
        User Participation Table Name will be stored at the time of login in Shared Preferences */
-    public static String getUserGroupParticipationTable(Context context,long userId) {
+    public static String getUserGroupParticipationTable(Context context) {
 
         // Build the uri using the stored User Id
         final Uri contentUri = DatabaseContract.UserEntry.buildUsersUri(getUserId(context));

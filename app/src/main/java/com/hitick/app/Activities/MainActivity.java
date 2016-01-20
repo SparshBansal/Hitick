@@ -1,24 +1,22 @@
 package com.hitick.app.Activities;
 
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 
 import com.hitick.app.Data.DatabaseContract;
-import com.hitick.app.Data.DatabaseContract.GroupDetailsEntry;
 import com.hitick.app.Data.DatabaseContract.GroupEntry;
-import com.hitick.app.Data.DatabaseContract.UserParticipationEntry;
+import com.hitick.app.Data.DatabaseContract.*;
 import com.hitick.app.R;
 import com.hitick.app.Utility;
 
@@ -36,6 +34,43 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     // KEY value for the argument of the bundle passed in onCreateLoader()
     private static final String KEY_ARGS_GROUP_DETAILS_TABLE = "KEY_GROUP_DETAILS_TABLE";
 
+    // PROJECTIONS for the join query used
+    private static final String[] USER_PARTICIPATION_WITH_GROUPS_PROJECTION = new String[]{
+            UserParticipationEntry.COLUMN_GROUP_ADMINISTRATOR,
+            GroupEntry.COLUMN_GROUP_ID,
+            GroupEntry.COLUMN_GROUP_MEMBERS,
+            GroupEntry.COLUMN_GROUP_NAME,
+            GroupEntry.COLUMN_GROUP_DETAILS
+    };
+
+    // Integer Constants corresponding to each item in the projections array
+    public static final int COL_GROUP_ADMINISTRATOR = 0;
+    public static final int COL_GROUP_ID = 1;
+    public static final int COL_GROUP_MEMBERS = 2;
+    public static final int COL_GROUP_NAME = 3;
+    public static final int COL_GROUP_DETAILS = 4;
+
+    // PROJECTIONS for the GROUP_DETAILS query
+    private static final String[] GROUP_DETAILS_PROJECTION = new String[]{
+            GroupDetailsEntry.COLUMN_POLL_ID,
+            GroupDetailsEntry.COLUMN_POLL_TOPIC,
+            GroupDetailsEntry.COLUMN_IN_FAVOR,
+            GroupDetailsEntry.COLUMN_OPPOSED,
+            GroupDetailsEntry.COLUMN_NOT_VOTED,
+            GroupDetailsEntry.COLUMN_POLL_DATETIME,
+            GroupDetailsEntry.COLUMN_TIME_LEFT,
+            GroupDetailsEntry.COLUMN_POLL_RESULT
+    };
+
+    public static final int COL_POLL_ID = 0;
+    public static final int COL_POLL_TOPIC = 1;
+    public static final int COL_IN_FAVOR = 2;
+    public static final int COL_OPPOSED = 3;
+    public static final int COL_NOT_VOTED = 4;
+    public static final int COL_POLL_DATETIME = 5;
+    public static final int COL_TIME_LEFT = 6;
+    public static final int COL_POLL_RESULT = 7;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         getSupportLoaderManager().initLoader(SPINNER_LOADER_ID, null, this);
 
         spinnerAdapter = new SimpleCursorAdapter(this,
-        android.R.layout.simple_list_item_2,
+                android.R.layout.simple_list_item_2,
                 null,
                 new String[]{GroupEntry.COLUMN_GROUP_NAME, GroupEntry.COLUMN_GROUP_MEMBERS},
                 new int[]{android.R.id.text1, android.R.id.text2});
@@ -78,32 +113,80 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     // Loader Callback methods for the spinner loader
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
+
+        /**Based on the loader id we create the corresponding cursor loader
+         * if loaderId == SPINNER LOADER ID we create the loader to populate the spinner view
+         * if loaderId == GROUP DETAILS LOADER ID , we create the loader to populate the viewPager and listView
+         * */
+        switch (id) {
+            case SPINNER_LOADER_ID:
+                // Get the table name from the Utility method
+                String tableName = Utility.getUserGroupParticipationTable(this);
+                Uri uri = DatabaseContract.Joins.buildUserPartcipationWithGroupUri(tableName);
+                return new CursorLoader(
+                        this,
+                        uri,
+                        USER_PARTICIPATION_WITH_GROUPS_PROJECTION,
+                        null,
+                        null,
+                        null
+                );
+            case GROUP_DETAILS_LOADER_ID:
+                // The table name will be passed as an argument, so we obtain it from args bundle
+                tableName = args.getString(KEY_ARGS_GROUP_DETAILS_TABLE);
+                uri = GroupDetailsEntry.buildContentUri(tableName);
+                return new CursorLoader(
+                        this,
+                        uri,
+                        GROUP_DETAILS_PROJECTION,
+                        null,
+                        null,
+                        null
+                );
+            default:
+                return null;
+        }
     }
 
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
+        /* Update our views here */
+        final int id = loader.getId();
+        switch (id) {
+            case SPINNER_LOADER_ID :
+                spinnerAdapter.swapCursor(data);
+                break;
+            case GROUP_DETAILS_LOADER_ID:
+                /*TODO -- Update the viewPager and listView*/
+                break;
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        final int id = loader.getId();
+        switch (id) {
+            case SPINNER_LOADER_ID :
+                spinnerAdapter.swapCursor(null);
+                break;
+            case GROUP_DETAILS_LOADER_ID:
+                /*TODO -- Update the viewPager and listView*/
+                break;
+        }
     }
 
     /* Spinner callbacks for item selection , we will load the data from the database
        based on the team selected by the user */
     @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+    public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
         // Get the cursor and position it to the current location and then determine the
         // GROUP_DETAILS table name.
 
         Cursor cursor = spinnerAdapter.getCursor();
-        cursor.moveToPosition(i);
+        cursor.moveToPosition(position);
 
-        final String groupDetailsTableName = cursor.getString(
-                cursor.getColumnIndex(DatabaseContract.GroupEntry.COLUMN_GROUP_DETAILS));
+        final String groupDetailsTableName = cursor.getString(COL_GROUP_DETAILS);
 
         // Now we restart the loader to load the Group Details from the GROUP_DETAILS table
         // Pass the group details table name as an argument in the bundle
