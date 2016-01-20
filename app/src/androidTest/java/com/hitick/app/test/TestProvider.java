@@ -4,6 +4,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.test.AndroidTestCase;
 import android.util.Log;
@@ -55,7 +56,7 @@ public class TestProvider extends AndroidTestCase {
                 null
         );
 
-        assertEquals(0 , cursor.getCount());
+        assertEquals(0, cursor.getCount());
 
         cursor = mContext.getContentResolver().query(GroupEntry.CONTENT_URI,
                 null,
@@ -64,7 +65,7 @@ public class TestProvider extends AndroidTestCase {
                 null
         );
 
-        assertEquals(0 , cursor.getCount());
+        assertEquals(0, cursor.getCount());
 
         cursor = mContext.getContentResolver().query(UserParticipationEntry.buildContentUri(TEST_GROUP_PARTICIPATION_TABLE),
                 null,
@@ -73,7 +74,7 @@ public class TestProvider extends AndroidTestCase {
                 null
         );
 
-        assertEquals(0 , cursor.getCount());
+        assertEquals(0, cursor.getCount());
 
         cursor = mContext.getContentResolver().query(DatabaseContract.GroupDetailsEntry.buildContentUri(TEST_GROUP_DETAILS_TABLE),
                 null,
@@ -82,7 +83,7 @@ public class TestProvider extends AndroidTestCase {
                 null
         );
 
-        assertEquals(0 , cursor.getCount());
+        assertEquals(0, cursor.getCount());
     }
 
     public void testGetType() {
@@ -181,7 +182,7 @@ public class TestProvider extends AndroidTestCase {
         ContentValues groupValues = getGroupContentValues();
         Uri groupRowUri = mContext.getContentResolver().insert(GroupEntry.CONTENT_URI, groupValues);
         long groupRowId = ContentUris.parseId(groupRowUri);
-        Log.d(LOG_TAG , "Group Row Id : " + groupRowId );
+        Log.d(LOG_TAG, "Group Row Id : " + groupRowId);
         assertTrue(groupRowId != -1);
 
         /*
@@ -200,7 +201,7 @@ public class TestProvider extends AndroidTestCase {
         );
 
         if (cursor.moveToFirst()) {
-            Log.d(LOG_TAG , "Count : " + cursor.getCount());
+            Log.d(LOG_TAG, "Count : " + cursor.getCount());
             validateCursor(cursor, groupValues);
         } else {
             fail("No rows returned");
@@ -293,6 +294,21 @@ public class TestProvider extends AndroidTestCase {
             fail("No rows returned");
         }
 
+        // Test our join actually works
+        cursor = mContext.getContentResolver().query(
+                DatabaseContract.Joins.buildUserPartcipationWithGroupUri(TEST_GROUP_PARTICIPATION_TABLE),
+                null,
+                null,
+                null,
+                null
+        );
+        if (cursor.moveToFirst()){
+            validateCursor(cursor,groupParticipationValues);
+            validateCursor(cursor,groupValues);
+        } else {
+            fail("No rows returned");
+        }
+
          /*
             All the tests until now have passed. We have created a fully functional Database with
             tables being created and populated at runtime using the helper methods and we now have a
@@ -322,7 +338,7 @@ public class TestProvider extends AndroidTestCase {
         contentValues.put(UserEntry.COLUMN_EMAIL, testEmail);
         contentValues.put(UserEntry.COLUMN_PASSWORD, testPassword);
         contentValues.put(UserEntry.COLUMN_USER_GROUP_PARTICIPATION_TABLE, TEST_GROUP_PARTICIPATION_TABLE);
-        contentValues.put(UserEntry.COLUMN_USER_ID , testUserId);
+        contentValues.put(UserEntry.COLUMN_USER_ID, testUserId);
         return contentValues;
     }
 
@@ -350,7 +366,7 @@ public class TestProvider extends AndroidTestCase {
         contentValues.put(GroupEntry.COLUMN_GROUP_ADMINISTRATOR_MOBILE, testGroupAdminMob);
         contentValues.put(GroupEntry.COLUMN_GROUP_ADMINISTRATOR_NAME, testGroupAdminName);
         contentValues.put(GroupEntry.COLUMN_GROUP_DETAILS, TEST_GROUP_DETAILS_TABLE);
-        contentValues.put(GroupEntry.COLUMN_GROUP_ID , testGroupId);
+        contentValues.put(GroupEntry.COLUMN_GROUP_ID, testGroupId);
         return contentValues;
     }
 

@@ -321,7 +321,7 @@ public class DataProvider extends ContentProvider {
                         .update(DatabaseContract.GroupEntry.TABLE_NAME, contentValues, selection, selectionArgs);
                 // Notify change on the join uri
                 getContext().getContentResolver().notifyChange(
-                        DatabaseContract.Joins.JOIN_BASE_CONTENT_URI,null);
+                        DatabaseContract.Joins.JOIN_BASE_CONTENT_URI, null);
                 break;
             case USER_GROUP_PARTICIPATION:
                 returnRows = mDatabaseHelper
@@ -329,7 +329,7 @@ public class DataProvider extends ContentProvider {
                         .update(DatabaseContract.UserParticipationEntry.getTableNameFromUri(uri), contentValues, selection, selectionArgs);
                 // Notify change on the join uri
                 getContext().getContentResolver().notifyChange(
-                        DatabaseContract.Joins.JOIN_BASE_CONTENT_URI,null);
+                        DatabaseContract.Joins.JOIN_BASE_CONTENT_URI, null);
                 break;
             case GROUP_DETAILS:
                 returnRows = mDatabaseHelper
@@ -393,9 +393,11 @@ public class DataProvider extends ContentProvider {
                                                                 String sortOrder) {
 
         mUserParticipationWithGroupQueryBuilder = new SQLiteQueryBuilder();
-        mUserParticipationWithGroupQueryBuilder.setTables(tableName + "INNER JOIN " +
+        mUserParticipationWithGroupQueryBuilder.setTables(tableName + " INNER JOIN " +
                 DatabaseContract.GroupEntry.TABLE_NAME + " ON " +
+                tableName + "." +
                 DatabaseContract.UserParticipationEntry.COLUMN_GROUP_KEY + " = " +
+                DatabaseContract.GroupEntry.TABLE_NAME + "." +
                 DatabaseContract.GroupEntry._ID
         );
         return mUserParticipationWithGroupQueryBuilder.query(
