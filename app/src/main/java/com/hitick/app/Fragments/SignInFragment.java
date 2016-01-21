@@ -70,7 +70,6 @@ public class SignInFragment extends Fragment {
                 boolean mSignedIn = signIn(mobileNumber, password);
             }
         });
-
         return rootView;
     }
 
