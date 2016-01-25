@@ -9,6 +9,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.hitick.app.QuickstartPreferences;
 import com.hitick.app.R;
+import com.hitick.app.Utility;
 
 import java.io.IOException;
 
@@ -36,6 +37,7 @@ public class HitickGCMRegistrationService extends IntentService {
             InstanceID instanceID = InstanceID.getInstance(this);
             String token = instanceID.getToken(getString(R.string.GCM_SENDER_ID),
                     GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+            Utility.saveGCMRegToken(getApplicationContext(),token);
             Log.d(LOG_TAG , token);
         } catch (IOException e) {
             e.printStackTrace();

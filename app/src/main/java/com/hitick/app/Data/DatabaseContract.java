@@ -177,11 +177,8 @@ public class DatabaseContract {
         /*Column for Number of Member in the group*/
         public static final String COLUMN_GROUP_MEMBERS = "group_members";
 
-        /*Column for group administrators Mobile Number*/
-        public static final String COLUMN_GROUP_ADMINISTRATOR_MOBILE = "group_administrator_mobile";
-
-        /*Column for group administrators name*/
-        public static final String COLUMN_GROUP_ADMINISTRATOR_NAME = "group_administrator_name";
+        /*Column for group Admin's Id*/
+        public static final String COLUMN_GROUP_ADMIN_ID = "group_admin_id";
 
         // Column for storing the unique group id assigned by the server
         public static final String COLUMN_GROUP_ID = "group_id";

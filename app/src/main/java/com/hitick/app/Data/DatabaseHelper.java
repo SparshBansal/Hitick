@@ -99,8 +99,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         DatabaseContract.GroupEntry.COLUMN_GROUP_NAME + " TEXT NOT NULL, " +
                         DatabaseContract.GroupEntry.COLUMN_GROUP_PASSWORD + " TEXT NOT NULL, " +
                         DatabaseContract.GroupEntry.COLUMN_GROUP_MEMBERS + " INTEGER NOT NULL, " +
-                        DatabaseContract.GroupEntry.COLUMN_GROUP_ADMINISTRATOR_NAME + " TEXT NOT NULL, " +
-                        DatabaseContract.GroupEntry.COLUMN_GROUP_ADMINISTRATOR_MOBILE + " TEXT NOT NULL, " +
+                        DatabaseContract.GroupEntry.COLUMN_GROUP_ADMIN_ID + " INTEGER NOT NULL," +
                         DatabaseContract.GroupEntry.COLUMN_GROUP_DETAILS + " TEXT NOT NULL, " +
                         "UNIQUE (" + DatabaseContract.GroupEntry.COLUMN_GROUP_ID + " ) ON CONFLICT REPLACE);";
 

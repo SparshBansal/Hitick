@@ -234,8 +234,7 @@ public class TestDb extends AndroidTestCase {
         final String testGroupName = "2K14A9";
         final String testGroupPassword = "A92K14";
         final int testGroupMembers = 30;
-        final String testGroupAdminMob = "+919923444322";
-        final String testGroupAdminName = "Robin Tomar";
+        final int testGroupAdminId = 23089;
         final long testGroupId = 230234;
 
         /*
@@ -245,8 +244,7 @@ public class TestDb extends AndroidTestCase {
         contentValues.put(GroupEntry.COLUMN_GROUP_NAME, testGroupName);
         contentValues.put(GroupEntry.COLUMN_GROUP_PASSWORD, testGroupPassword);
         contentValues.put(GroupEntry.COLUMN_GROUP_MEMBERS, testGroupMembers);
-        contentValues.put(GroupEntry.COLUMN_GROUP_ADMINISTRATOR_MOBILE, testGroupAdminMob);
-        contentValues.put(GroupEntry.COLUMN_GROUP_ADMINISTRATOR_NAME, testGroupAdminName);
+        contentValues.put(GroupEntry.COLUMN_GROUP_ADMIN_ID ,testGroupAdminId);
         contentValues.put(GroupEntry.COLUMN_GROUP_DETAILS, TEST_GROUP_DETAILS_TABLE);
         contentValues.put(GroupEntry.COLUMN_GROUP_ID , testGroupId);
         return contentValues;

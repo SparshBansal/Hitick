@@ -8,6 +8,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
@@ -346,10 +347,64 @@ public class DataProvider extends ContentProvider {
         return returnRows;
     }
 
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        final SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int returnCount=0;
+        switch (match) {
+            case GROUPS :
+                db.beginTransaction();
+                try {
+                    for (ContentValues contentValues : values) {
+                        long _id = db.insert(DatabaseContract.GroupEntry.TABLE_NAME , null , contentValues);
+                        if (_id != -1)
+                            returnCount++;
+                    }
+                    db.setTransactionSuccessful();
+                }finally {
+                    db.endTransaction();
+                }
+                break;
+            case GROUP_DETAILS :
+                String TABLE_NAME = DatabaseContract.GroupDetailsEntry.getTableNameFromUri(uri);
+                db.beginTransaction();
+                try {
+                    for (ContentValues contentValues : values) {
+                        long _id = db.insert(TABLE_NAME , null , contentValues);
+                        if (_id!=-1)
+                            returnCount++;
+                    }
+                    db.setTransactionSuccessful();
+                }finally {
+                    db.endTransaction();
+                }
+                break;
+            case USER_GROUP_PARTICIPATION :
+                TABLE_NAME = DatabaseContract.UserParticipationEntry.getTableNameFromUri(uri);
+                db.beginTransaction();
+                try {
+                    for (ContentValues contentValues : values) {
+                        long _id = db.insert(TABLE_NAME,null,contentValues);
+                        if (_id!=-1)
+                            returnCount++;
+                    }
+                    db.setTransactionSuccessful();
+                }finally {
+                    db.endTransaction();
+                }
+                break;
+            default:
+                return super.bulkInsert(uri,values);
+        }
+        getContext().getContentResolver().notifyChange(uri,null);
+        return returnCount;
+    }
+
     /*
-        Helper method to build the URI Matcher object that maps each of the URIs to their respective
-        Constants
-    */
+            Helper method to build the URI Matcher object that maps each of the URIs to their respective
+            Constants
+        */
     private static UriMatcher buildUriMatcher() {
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         String CONTENT_AUTHORITY = DatabaseContract.CONTENT_AUTHORITY;
@@ -398,7 +453,7 @@ public class DataProvider extends ContentProvider {
                 tableName + "." +
                 DatabaseContract.UserParticipationEntry.COLUMN_GROUP_KEY + " = " +
                 DatabaseContract.GroupEntry.TABLE_NAME + "." +
-                DatabaseContract.GroupEntry._ID
+                DatabaseContract.GroupEntry.COLUMN_GROUP_ID
         );
         return mUserParticipationWithGroupQueryBuilder.query(
                 mDatabaseHelper.getReadableDatabase(),
