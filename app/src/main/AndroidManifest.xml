@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.hitick.app" >
+    package="com.hitick.app">
 
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.WRITE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    
-    <permission android:name="com.hitick.app.permission.C2D_MESSAGE" 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <permission
+        android:name="com.hitick.app.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
-    <uses-permission android:name="com.hitick.app.permission.C2D_MESSAGE"/>
+    <uses-permission android:name="com.hitick.app.permission.C2D_MESSAGE" />
 
     <application
         android:name=".Network.VolleyApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".Activities.LoginActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,26 +31,31 @@
 
         <provider
             android:name=".Data.DataProvider"
-            android:authorities="com.hitick.app" >
-        </provider>
+            android:authorities="com.hitick.app"></provider>
 
         <activity
             android:name=".Activities.MainActivity"
-            android:label="@string/title_activity_main" >
-        </activity>
+            android:label="@string/title_activity_main"></activity>
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND" >
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <category android:name="com.example.gcm" />
             </intent-filter>
         </receiver>
-        <service android:name=".Services.HitickService" android:exported="false">
+
+        <service
+            android:name=".Services.HitickInstanceIdListenerService"
+            android:exported="false">
             <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID"/>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
+        </service>
+        <service
+            android:name=".Services.HitickGCMRegistrationService"
+            android:exported="false">
         </service>
     </application>
 

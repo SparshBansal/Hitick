@@ -6,31 +6,32 @@
     tools:context=".Fragments.SignInFragment">
 
     <EditText
+        android:id="@+id/etMobile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/etMobile"
         android:hint="@string/signup_mobile"
-        android:paddingTop="@dimen/signup_editText_padding"
         android:paddingBottom="@dimen/signup_editText_padding"
         android:paddingLeft="@dimen/signup_editText_padding"
-        android:textSize="@dimen/signup_page_font_size"/>
+        android:paddingTop="@dimen/signup_editText_padding"
+        android:textSize="@dimen/signup_page_font_size" />
 
     <EditText
+        android:id="@+id/etPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/etPassword"
         android:hint="@string/signup_passsword"
-        android:paddingTop="@dimen/signup_editText_padding"
+        android:inputType="textPassword"
         android:paddingBottom="@dimen/signup_editText_padding"
         android:paddingLeft="@dimen/signup_editText_padding"
-        android:textSize="@dimen/signup_page_font_size"/>
+        android:paddingTop="@dimen/signup_editText_padding"
+        android:textSize="@dimen/signup_page_font_size" />
 
     <Button
+        android:id="@+id/bSignIn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/bSignIn"
-        android:text="@string/login_button_signin"
         android:layout_gravity="center_horizontal"
-        android:layout_margin="@dimen/signup_button_margin"/>
+        android:layout_margin="@dimen/signup_button_margin"
+        android:text="@string/login_button_signin" />
 
 </LinearLayout>

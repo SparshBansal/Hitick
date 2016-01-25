@@ -6,7 +6,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.telephony.SmsManager;
+import android.text.TextUtils;
 import android.util.Log;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.hitick.app.Data.DatabaseContract.*;
 import com.hitick.app.Data.DatabaseContract;
 
@@ -71,4 +75,46 @@ public class Utility {
         Random random = new Random(System.currentTimeMillis());
         return 10000 + random.nextInt(80000);
     }
+
+
+    // Helper method to check for required version of play services
+
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    public static boolean checkPlayServices(Context context) {
+        int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(context);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+
+            } else {
+                Log.i(LOG_TAG, "This device is not supported.");
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**Helper method to save the Registration Token in Shared Preferences*/
+    public static void saveGCMRegToken(Context context,String regToken) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(context.getString(R.string.KEY_PREFERENCE_GCM_TOKEN),regToken);
+        editor.commit();
+    }
+
+    /**Helper method to retrieve the GCM regToken*/
+    public static String getGCMRegToken(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String regToken = preferences.getString(context.getString(R.string.KEY_PREFERENCE_GCM_TOKEN),"");
+        if (TextUtils.isEmpty(regToken))
+            return null;
+        else
+            return regToken;
+    }
+
 }

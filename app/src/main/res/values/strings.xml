@@ -5,6 +5,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_sign_up_details">SignUpDetailsActivity</string>
+    <string name="title_activity_sign_in_details">SignInDetailsActivity</string>
+    <string name="title_activity_main">MainActivity</string>
 
     <!-- Login Activity Resources -->
     <string name="login_button_signup">Sign Up</string>
@@ -18,19 +20,31 @@
     <string name="signup_button_register">Sign Up</string>
     <string name="signup_passsword">Password</string>
 
-    <!-- Keys for storing data for authentication -->
-    <string name="KEY_PREFERENCE_FIRST_NAME">KEY_FIRST_NAME</string>
-    <string name="KEY_PREFERENCE_LAST_NAME">KEY_LAST_NAME</string>
-    <string name="KEY_PREFERENCE_EMAIL_ID">KEY_EMAIL_ID</string>
-    <string name="KEY_PREFERENCE_MOBILE_NUMBER">KEY_MOBILE_NUMBER</string>
+    <!-- Keys for storing data at the time of SignUp-->
+    <string name="KEY_PREFERENCE_SIGNUP_FIRST_NAME">KEY_SIGNUP_FIRST_NAME</string>
+    <string name="KEY_PREFERENCE_SIGNUP_LAST_NAME">KEY_SIGNUP_LAST_NAME</string>
+    <string name="KEY_PREFERENCE_SIGNUP_EMAIL_ID">KEY_SIGNUP_EMAIL_ID</string>
+    <string name="KEY_PREFERENCE_SIGNUP_MOBILE_NUMBER">KEY_SIGNUP_MOBILE_NUMBER</string>
+    <string name="KEY_PREFERENCE_SIGNUP_PASSWORD">KEY_SIGNUP_PASSWORD</string>
+
+    <!-- Keys for storing data at the time of SignIn-->
+    <string name="KEY_PREFERENCE_SIGNIN_MOBILE_NUMBER">KEY_SIGNIN_MOBILE_NUMBER</string>
+    <string name="KEY_PREFERENCE_SIGNIN_PASSWORD">KEY_SIGNIN_PASSWORD</string>
+
+    <!-- Keys for storing mobile verification data -->
     <string name="KEY_VERIFICATION_CODE">KEY_VERIFICATION_CODE</string>
     <string name="KEY_VERIFICATION_LAST_SAVE_TIME">KEY_LAST_SAVE_TIME</string>
-    <string name="KEY_PREFERENCE_PASSWORD">KEY_PASSWORD</string>
-    <string name="title_activity_sign_in_details">SignInDetailsActivity</string>
+
+    <!-- Key for storing the GCM Registration Token for this device -->
+    <string name="KEY_PREFERENCE_GCM_TOKEN">KEY_GCM_TOKEN</string>
+
+    <!-- GCM sender id for registration on GCM -->
+    <string name="GCM_SENDER_ID">51261057929</string>
 
     <!-- Keys for JSON Post Object send to server during Sign In -->
-    <string name="KEY_SIGNIN_JSON_MOBILE">mobile</string>
+    <string name="KEY_SIGNIN_JSON_MOBILE">mobile_number</string>
     <string name="KEY_SIGNIN_JSON_PASSWORD">password</string>
+    <string name="KEY_SIGNIN_JSON_GCM_TOKEN">regToken</string>
 
     <!-- Keys for JSON Post Object send to server during Sign Up -->
     <string name="KEY_SIGNUP_JSON_FIRST_NAME">firstname</string>
@@ -40,16 +54,13 @@
     <string name="KEY_SIGNUP_JSON_EMAIL">email</string>
 
     <!-- Urls to communicate with the server -->
-
     <!-- Sign In / Sign Up Urls -->
     <string name="URL_SIGN_IN"></string>
     <string name="URL_SIGN_UP"></string>
     <string name="URL_DETAILS"></string>
-    <string name="title_activity_main">MainActivity</string>
 
 
     <!-- Keys for storing the details of the currently active user -->
     <string name="KEY_CURRENT_USER_ID">KEY_CURRENT_USER_ID</string>
-
 
 </resources>
