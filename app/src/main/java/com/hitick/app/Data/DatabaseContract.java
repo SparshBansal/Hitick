@@ -31,7 +31,7 @@ public class DatabaseContract {
 
     /* Details for the database Helper Class */
     public static final String DATABASE_NAME = "database_hitick";
-    public static int DATABASE_VERSION = 1;
+    public static int DATABASE_VERSION = 2;
 
     /*
         User Entry -- User Table -- Details of Users
@@ -75,15 +75,8 @@ public class DatabaseContract {
 
         // Unique Id assigned to each user by the server
         public static final String COLUMN_USER_ID = "user_id";
-        /*
-        Column for User's group participation table
-        It will point to table containing the names of the groups the user is a part of
-        referenced by foreign key to the group details table
-        */
-        public static final String COLUMN_USER_GROUP_PARTICIPATION_TABLE = "user_group_participation";
 
         /* Helper method to encode the URI's which will be used to query our database */
-
         public static final Uri buildUsersUri(long _id) {
             return ContentUris.withAppendedId(CONTENT_URI, _id);
         }
@@ -100,26 +93,26 @@ public class DatabaseContract {
             will be created at runtime therefore we will append the name of the table to content
             Uri
         */
-        public static final Uri SUB_CONTENT_URI =
+        public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_USER_PARTICIPATION).build();
 
-        public static final String SUB_CONTENT_TYPE = "vnd.android.cursor.dir/" +
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/" +
                 CONTENT_AUTHORITY + "/" + PATH_USER_PARTICIPATION;
-        public static final String SUB_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" +
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" +
                 CONTENT_AUTHORITY + "/" + PATH_USER_PARTICIPATION;
 
+
+        /*Table name for the table...*/
+        public static final String TABLE_NAME = "user_participation";
 
         /*
-            It will not have a table name as this table will be created
-            dynamically at runtime.
-            The details of the groups that the user is a part will be parsed at the time of
-            login and put into this table
-        */
-
+        *   Column for User id , referencing the users table
+        * */
+        public static final String COLUMN_USER_ID = "user_id";
         /*
             Column for id of groups he is part of..
         */
-        public static final String COLUMN_GROUP_KEY = "group_key";
+        public static final String COLUMN_GROUP_ID = "group_id";
 
         /*
             Column for storing an integer indicating whether the user is the administrator of the
@@ -127,29 +120,14 @@ public class DatabaseContract {
             1 -- TRUE -- Indicates that the user is the administrator
             0 -- FALSE -- Indicates that the user is a member of the group
         */
-
         public static final String COLUMN_GROUP_ADMINISTRATOR = "group_administrator";
 
-        /*
-            Helper Encoding function which will create the appropriate URI from the SUB_CONTENT_URI
-            They are required since the actual CONTENT_URI can only be built after the name of
-            the table is known and that happens only at runtime
-        */
 
-        //Method to return/encode the content uri from SUB_CONTENT_URI
-        public static final Uri buildContentUri(String tableName) {
-            return SUB_CONTENT_URI.buildUpon().appendPath(tableName).build();
+        // Helper method to encode and decode the uris
+        public static final Uri buildUserparticipationUri(long id){
+            Uri returnUri = ContentUris.withAppendedId(CONTENT_URI , id);
+            return returnUri;
         }
-
-
-
-        /* Decoder function used to abstract information from the URIs */
-
-        //Function to determine the Table Name from the given URI
-        public static String getTableNameFromUri(Uri uri) {
-            return uri.getPathSegments().get(1);
-        }
-
     }
 
     /*
@@ -183,15 +161,6 @@ public class DatabaseContract {
         // Column for storing the unique group id assigned by the server
         public static final String COLUMN_GROUP_ID = "group_id";
 
-        /**
-         * Column for group's poll history and details
-         * It will point to another table which will contain the history of the polls Conducted
-         * till now.
-         * It will also contain the details of current ongoing polls and previously held polls
-         */
-
-        public static final String COLUMN_GROUP_DETAILS = "group_details";
-
         /* Helper encoding functions that will be used to create the specific URI's for querying */
 
         //Function for encoding the URI used to query for the group details
@@ -210,18 +179,19 @@ public class DatabaseContract {
            will be created at runtime therefore we will append the name of the table to content
            Uri
        */
-        public static final Uri SUB_CONTENT_URI =
+        public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_GROUP_DETAILS).build();
 
-        public static final String SUB_CONTENT_TYPE = "vnd.android.cursor.dir/" +
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/" +
                 CONTENT_AUTHORITY + "/" + PATH_GROUP_DETAILS;
-        public static final String SUB_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" +
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" +
                 CONTENT_AUTHORITY + "/" + PATH_GROUP_DETAILS;
 
-        /*
-            We won't have a Table Name defined in the base Contract because it
-            will be dynamically generated at runtime to ensure that duplicate tables may not exist
-        */
+        /*Table name of the table*/
+        public static final String TABLE_NAME = "group_details";
+
+        /*Group id foreign key referencing groups table*/
+        public static final String COLUMN_GROUP_ID = "group_id";
 
         /* Column for the Unique Id of each poll as assigned by the server dispatcher */
         public static final String COLUMN_POLL_ID = "poll_id";
@@ -235,7 +205,7 @@ public class DatabaseContract {
         public static final String COLUMN_POLL_DATETIME = "poll_datetime";
 
         /* Column for storing the last updated time left for the poll to expire */
-        public static final String COLUMN_TIME_LEFT = "time_left";
+        public static final String COLUMN_STIPULATED_TIME = "stipulated_time";
 
         /*
             Column for storing a boolean indicating whether the poll is ongoing
@@ -265,18 +235,16 @@ public class DatabaseContract {
         */
         public static final String COLUMN_POLL_RESULT = "poll_result";
 
-        /* Helper function that will be used to encode the actual Uri for querying */
+        // Helper method for encoding and decoding uris
 
-        //Function to create the URI Pointing to the appropriate Group Details table
-        public static final Uri buildContentUri(String tableName) {
-            return SUB_CONTENT_URI.buildUpon().appendPath(tableName).build();
+        // method to construct the uri for poll data with group id
+        public static final Uri buildGroupDetailsUri(long groupId) {
+            return ContentUris.withAppendedId(CONTENT_URI , groupId);
         }
 
-        /* Decoder function used to abstract information from the URIs */
-
-        //Function to determine the Table Name from the given URI
-        public static String getTableNameFromUri(Uri uri) {
-            return uri.getPathSegments().get(1);
+        //Method to get the group id from the uri
+        public static final long getGroupIdFromUri (Uri uri){
+            return ContentUris.parseId(uri);
         }
     }
 
@@ -291,7 +259,7 @@ public class DatabaseContract {
                 "user_participation_with_groups";
 
         // Key for appending Table_Name parameters to end of the join queries
-        private static final String KEY_USER_PARTICIPATION_TABLE_NAME =
+        private static final String KEY_USER_PARTICIPATION_USER_ID =
                 "key_user_partcipation_table_name";
 
         // Base Uri for all the join queries
@@ -305,16 +273,16 @@ public class DatabaseContract {
                 CONTENT_AUTHORITY + "/" + PATH_JOIN + "/" + PATH_USER_PARTICPIATION_WITH_GROUPS;
 
         // Method to create a join query uri between User-Participation-Table and Group-Table
-        public static final Uri buildUserPartcipationWithGroupUri(String userPartcipationTableName) {
+        public static final Uri buildUserPartcipationWithGroupUri(long userId) {
             return JOIN_BASE_CONTENT_URI.buildUpon()
                     .appendPath(PATH_USER_PARTICPIATION_WITH_GROUPS)
-                    .appendQueryParameter(KEY_USER_PARTICIPATION_TABLE_NAME, userPartcipationTableName)
+                    .appendQueryParameter(KEY_USER_PARTICIPATION_USER_ID, String.valueOf(userId))
                     .build();
         }
 
         // Method to decode get the Table Name from the join uri
-        public static final String getTableNameFromUserParticipationWithGroupUri(Uri uri) {
-            return uri.getQueryParameter(KEY_USER_PARTICIPATION_TABLE_NAME);
+        public static final String getUserIdFromUserParticipationWithGroupUri(Uri uri) {
+            return uri.getQueryParameter(KEY_USER_PARTICIPATION_USER_ID);
         }
     }
 }

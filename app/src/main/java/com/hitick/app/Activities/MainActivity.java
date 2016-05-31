@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private static final int GROUP_DETAILS_LOADER_ID = 101;
 
     // KEY value for the argument of the bundle passed in onCreateLoader()
-    private static final String KEY_ARGS_GROUP_DETAILS_TABLE = "KEY_GROUP_DETAILS_TABLE";
+    private static final String KEY_ARGS_GROUP_ID = "KEY_GROUP_DETAILS_ID";
 
     // PROJECTIONS for the join query used
     private static final String[] USER_PARTICIPATION_WITH_GROUPS_PROJECTION = new String[]{
@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             GroupEntry.COLUMN_GROUP_ID,
             GroupEntry.COLUMN_GROUP_MEMBERS,
             GroupEntry.COLUMN_GROUP_NAME,
-            GroupEntry.COLUMN_GROUP_DETAILS
     };
 
     // Integer Constants corresponding to each item in the projections array
@@ -48,7 +47,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public static final int COL_GROUP_ID = 1;
     public static final int COL_GROUP_MEMBERS = 2;
     public static final int COL_GROUP_NAME = 3;
-    public static final int COL_GROUP_DETAILS = 4;
 
     // PROJECTIONS for the GROUP_DETAILS query
     private static final String[] GROUP_DETAILS_PROJECTION = new String[]{
@@ -58,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             GroupDetailsEntry.COLUMN_OPPOSED,
             GroupDetailsEntry.COLUMN_NOT_VOTED,
             GroupDetailsEntry.COLUMN_POLL_DATETIME,
-            GroupDetailsEntry.COLUMN_TIME_LEFT,
+            GroupDetailsEntry.COLUMN_STIPULATED_TIME,
             GroupDetailsEntry.COLUMN_POLL_RESULT
     };
 
@@ -120,9 +118,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
          * */
         switch (id) {
             case SPINNER_LOADER_ID:
-                // Get the table name from the Utility method
-                String tableName = Utility.getUserGroupParticipationTable(this);
-                Uri uri = DatabaseContract.Joins.buildUserPartcipationWithGroupUri(tableName);
+                Uri uri = DatabaseContract.Joins.buildUserPartcipationWithGroupUri(Utility.getCurrentUserId(this));
                 return new CursorLoader(
                         this,
                         uri,
@@ -133,8 +129,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 );
             case GROUP_DETAILS_LOADER_ID:
                 // The table name will be passed as an argument, so we obtain it from args bundle
-                tableName = args.getString(KEY_ARGS_GROUP_DETAILS_TABLE);
-                uri = GroupDetailsEntry.buildContentUri(tableName);
+                final long groupId = args.getLong(KEY_ARGS_GROUP_ID);
+                uri = GroupDetailsEntry.buildGroupDetailsUri(groupId);
                 return new CursorLoader(
                         this,
                         uri,
@@ -186,12 +182,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Cursor cursor = spinnerAdapter.getCursor();
         cursor.moveToPosition(position);
 
-        final String groupDetailsTableName = cursor.getString(COL_GROUP_DETAILS);
+        final long groupID = cursor.getLong(COL_GROUP_ID);
 
         // Now we restart the loader to load the Group Details from the GROUP_DETAILS table
         // Pass the group details table name as an argument in the bundle
         Bundle args = new Bundle();
-        args.putString(KEY_ARGS_GROUP_DETAILS_TABLE, groupDetailsTableName);
+        args.putLong(KEY_ARGS_GROUP_ID, groupID);
 
         getSupportLoaderManager().restartLoader(GROUP_DETAILS_LOADER_ID, args, this);
     }

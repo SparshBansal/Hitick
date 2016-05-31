@@ -32,83 +32,11 @@ public class Utility {
         return userId;
     }
 
-    /* Static method to the Table Name of the user group Participation Table ,
-       User Participation Table Name will be stored at the time of login in Shared Preferences */
-    public static String getUserGroupParticipationTable(Context context,long userId) {
-
-        // Build the uri using the stored User Id
-        final Uri contentUri = DatabaseContract.UserEntry.buildUsersUri(userId);
-
-        // Query the database and extract the user_group_participation_table_name
-        Cursor retCursor = context.getContentResolver().query(
-                contentUri,
-                null,
-                null,
-                null,
-                null
-        );
-
-        final String userGroupParticipationTable = retCursor.
-                getString(retCursor.getColumnIndex(UserEntry.COLUMN_USER_GROUP_PARTICIPATION_TABLE));
-        return userGroupParticipationTable;
-    }
-
-    // Helper method to check if the user is present in Database
-    public static boolean checkUserInDatabase (long userId,Context context) {
-
-        Uri contentUri = UserEntry.buildUsersUri(userId);
-        Cursor retCursor = context.getContentResolver().query(
-                contentUri,
-                null,
-                null,
-                null,
-                null
-        );
-        if (retCursor.getCount() <= 0)
-            return false;
-        else
-            return true;
-    }
-
-    // Helper method to check if the group is in the Database
-    public static boolean checkGroupInDatabase (long groupId , Context context) {
-
-        Uri contentUri = GroupEntry.buildGroupsUri(groupId);
-        Cursor retCursor = context.getContentResolver().query(
-                contentUri,
-                null,
-                null,
-                null,
-                null
-        );
-        if (retCursor.getCount() <= 0)
-            return false;
-        else
-            return true;
-    }
-
-    // Helper method to get the Group Details TableName from the Database
-    public static String getGroupDetailsTable (long groupId , Context context) {
-        Uri contentUri = GroupEntry.buildGroupsUri(groupId);
-        Cursor retCursor = context.getContentResolver().query(
-                contentUri,
-                null,
-                null,
-                null,
-                null
-        );
-        if (retCursor.moveToFirst()) {
-            return retCursor.getString(retCursor.getColumnIndex(GroupEntry.COLUMN_GROUP_DETAILS));
-        }else{
-            return null;
-        }
-    }
-
     //Helper method to send sms to provided number
     public static void sendSMS(Context  context , int VERIFICATION_CODE) {
         //Get Saved telephone number
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String phoneNumber = preferences.getString(context.getString(R.string.KEY_PREFERENCE_MOBILE_NUMBER), "");
+        String phoneNumber = preferences.getString(context.getString(R.string.KEY_PREFERENCE_SIGNUP_MOBILE_NUMBER), "");
         if (phoneNumber.equals("")) {
             Log.d(LOG_TAG, "PHONE NUMBER NOT SAVED");
             return;

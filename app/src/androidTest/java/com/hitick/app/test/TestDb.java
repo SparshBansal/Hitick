@@ -14,18 +14,13 @@ import com.hitick.app.Data.DatabaseHelper;
 import java.util.Map;
 import java.util.Set;
 
+import static com.hitick.app.Data.DatabaseContract.*;
+
 /**
  * Created by Sparsha on 11/11/2015.
  */
 public class TestDb extends AndroidTestCase {
     private static final String LOG_TAG = TestDb.class.getSimpleName();
-
-    /*The name of the group Participation table created at runtime for the user*/
-    private static final String TEST_GROUP_PARTICIPATION_TABLE = "abc123_9953652224";
-
-    /*The name of the group Details table created at runtime for the user*/
-    private static final String TEST_GROUP_DETAILS_TABLE = "A92K14_2K14A9";
-
     /*
         Testing Framework for Android
     */
@@ -35,7 +30,7 @@ public class TestDb extends AndroidTestCase {
     */
 
     public void testCreateDb() throws Throwable {
-        mContext.deleteDatabase(DatabaseContract.DATABASE_NAME);
+        mContext.deleteDatabase(DATABASE_NAME);
         SQLiteDatabase database = new DatabaseHelper(mContext).getWritableDatabase();
 
         assertEquals(true, database.isOpen());
@@ -117,36 +112,21 @@ public class TestDb extends AndroidTestCase {
             fail("No rows returned");
         }
 
-
-        /*
-            Now that the group table is working perfectly its time to test the tables that are
-            created dynamically at runtime
-
-            First we create a User Participation Table with groupRowId as the key to the group
-            Then we create a Group Details Table..
-
-            Important Note --- Table Names cannot start with a digit and should not contain special
-            characters as -,. etc
-        */
-
-
         /*
             Lets Create a user Participation table using the method we declared in the Database Helper Class
             Get the ContentValues Object from the helper method and insert data in the database
             Assert to see if data was successfully inserted
         */
-        databaseHelper.addGroupParticipationTable(TEST_GROUP_PARTICIPATION_TABLE);
-        ContentValues groupParticipationValues = getGroupParticipationValues((int) groupRowId);
-        long groupParticipationId = database.insert(TEST_GROUP_PARTICIPATION_TABLE, null, groupParticipationValues);
+        ContentValues groupParticipationValues = getUserParticipationValues();
+        long groupParticipationId = database.insert(UserParticipationEntry.TABLE_NAME, null, groupParticipationValues);
 
         assertTrue(groupParticipationId != -1);
-
         /*
             Read from the database to see if we got the data back
             Validate the Cursor using the helper Method
         */
         cursor = database.query(
-                TEST_GROUP_PARTICIPATION_TABLE,
+                UserParticipationEntry.TABLE_NAME,
                 null,
                 null,
                 null,
@@ -166,9 +146,8 @@ public class TestDb extends AndroidTestCase {
             Get the ContentValues Object from the helper method and insert data in the database
             Assert to see if data was successfully inserted
         */
-        databaseHelper.addGroupDetailsTable(TEST_GROUP_DETAILS_TABLE);
         ContentValues groupDetailsValues = getGroupDetailsValues();
-        long groupDetailsRowId = database.insert(TEST_GROUP_DETAILS_TABLE, null, groupDetailsValues);
+        long groupDetailsRowId = database.insert(GroupDetailsEntry.TABLE_NAME, null, groupDetailsValues);
 
         assertTrue(groupDetailsRowId != -1);
 
@@ -177,7 +156,7 @@ public class TestDb extends AndroidTestCase {
             Validate the cursor using the helper method
         */
         cursor = database.query(
-                TEST_GROUP_DETAILS_TABLE,
+                GroupDetailsEntry.TABLE_NAME,
                 null,
                 null,
                 null,
@@ -203,24 +182,23 @@ public class TestDb extends AndroidTestCase {
          /*
             Dummy data for inserting into our users table
         */
-        String testFirstName = "Sparsh";
-        String testLastName = "Bansal";
-        String testMobileNumber = "+919953652224";
-        String testPassword = "abc123";
-        String testEmail = "sparsh.bansal17895@gmail.com";
+        final String testFirstName = "Sparsh";
+        final String testLastName = "Bansal";
+        final String testMobileNumber = "+919953652224";
+        final String testPassword = "abc123";
+        final String testEmail = "sparsh.bansal17895@gmail.com";
         long testUserId = 230002;
 
         /*
             Content Values object to put values into the database
         */
         ContentValues contentValues = new ContentValues();
+        contentValues.put(UserEntry.COLUMN_USER_ID , testUserId);
         contentValues.put(UserEntry.COLUMN_FIRST_NAME, testFirstName);
         contentValues.put(UserEntry.COLUMN_LAST_NAME, testLastName);
         contentValues.put(UserEntry.COLUMN_MOBILE_NUMBER, testMobileNumber);
         contentValues.put(UserEntry.COLUMN_EMAIL, testEmail);
         contentValues.put(UserEntry.COLUMN_PASSWORD, testPassword);
-        contentValues.put(UserEntry.COLUMN_USER_GROUP_PARTICIPATION_TABLE, TEST_GROUP_PARTICIPATION_TABLE);
-        contentValues.put(UserEntry.COLUMN_USER_ID , testUserId);
         return contentValues;
     }
 
@@ -245,7 +223,6 @@ public class TestDb extends AndroidTestCase {
         contentValues.put(GroupEntry.COLUMN_GROUP_PASSWORD, testGroupPassword);
         contentValues.put(GroupEntry.COLUMN_GROUP_MEMBERS, testGroupMembers);
         contentValues.put(GroupEntry.COLUMN_GROUP_ADMIN_ID ,testGroupAdminId);
-        contentValues.put(GroupEntry.COLUMN_GROUP_DETAILS, TEST_GROUP_DETAILS_TABLE);
         contentValues.put(GroupEntry.COLUMN_GROUP_ID , testGroupId);
         return contentValues;
     }
@@ -253,18 +230,19 @@ public class TestDb extends AndroidTestCase {
     /*
         Helper method to get the Group Participation Table ContentValues Object
     */
-    ContentValues getGroupParticipationValues(int groupRowId) {
+    ContentValues getUserParticipationValues() {
          /*
              Now lets try and insert in the table
              Dummy data for group Participation Table
          */
-        final int testGroupKey = (int) groupRowId;
+        final long testGroupId = 230234;
         final int testGroupAdministrator = 1;
+        final long testUserId = 230002;
 
         /*Now clear the content values object and put the new data*/
         ContentValues contentValues = new ContentValues();
-
-        contentValues.put(UserParticipationEntry.COLUMN_GROUP_KEY, testGroupKey);
+        contentValues.put(UserParticipationEntry.COLUMN_USER_ID , testUserId);
+        contentValues.put(UserParticipationEntry.COLUMN_GROUP_ID, testGroupId);
         contentValues.put(UserParticipationEntry.COLUMN_GROUP_ADMINISTRATOR, testGroupAdministrator);
 
         return contentValues;
@@ -284,20 +262,22 @@ public class TestDb extends AndroidTestCase {
         final String testPollDatetime = "20151512";
         final int testTimeLeft = 4500;
         final String testPollResult = "Mass Bunk Tomorrow!!";
+        final long testGroupId = 230234;
 
         /*
             Clear the content Values Object and put the new values
         */
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_POLL_TOPIC, testPollTopic);
-        contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_POLL_ID , testPollId);
-        contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_POLL_DATETIME , testPollDatetime);
-        contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_TIME_LEFT , testTimeLeft);
-        contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_POLL_ONGOING, testPollOngoing);
-        contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_IN_FAVOR, testInFavor);
-        contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_OPPOSED, testOpposed);
-        contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_NOT_VOTED, testNotVoted);
-        contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_POLL_RESULT, testPollResult);
+        contentValues.put(GroupDetailsEntry.COLUMN_GROUP_ID , testGroupId);
+        contentValues.put(GroupDetailsEntry.COLUMN_POLL_TOPIC, testPollTopic);
+        contentValues.put(GroupDetailsEntry.COLUMN_POLL_ID , testPollId);
+        contentValues.put(GroupDetailsEntry.COLUMN_POLL_DATETIME , testPollDatetime);
+        contentValues.put(GroupDetailsEntry.COLUMN_STIPULATED_TIME , testTimeLeft);
+        contentValues.put(GroupDetailsEntry.COLUMN_POLL_ONGOING, testPollOngoing);
+        contentValues.put(GroupDetailsEntry.COLUMN_IN_FAVOR, testInFavor);
+        contentValues.put(GroupDetailsEntry.COLUMN_OPPOSED, testOpposed);
+        contentValues.put(GroupDetailsEntry.COLUMN_NOT_VOTED, testNotVoted);
+        contentValues.put(GroupDetailsEntry.COLUMN_POLL_RESULT, testPollResult);
 
         return contentValues;
     }

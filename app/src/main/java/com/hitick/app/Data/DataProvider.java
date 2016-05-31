@@ -3,16 +3,15 @@ package com.hitick.app.Data;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.IntentFilter;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.CursorIndexOutOfBoundsException;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
-import android.util.StringBuilderPrinter;
+
+import static com.hitick.app.Data.DatabaseContract.*;
 
 /**
  * Created by Sparsha on 11/13/2015.
@@ -37,6 +36,7 @@ public class DataProvider extends ContentProvider {
     private static final int USERS = 100;
     private static final int USERS_ID = 101;
     private static final int USER_GROUP_PARTICIPATION = 102;
+    private static final int USER_GROUP_PARTICIPATION_WITH_USER_ID = 107;
     private static final int USER_PARTICIPATION_WITH_GROUP = 103;
     private static final int GROUPS = 104;
     private static final int GROUPS_ID = 105;
@@ -68,7 +68,7 @@ public class DataProvider extends ContentProvider {
         switch (match) {
             case USERS:
                 retCursor = mDatabaseHelper.getWritableDatabase().query(
-                        DatabaseContract.UserEntry.TABLE_NAME,
+                        UserEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -79,12 +79,12 @@ public class DataProvider extends ContentProvider {
                 break;
 
             case USERS_ID:
-                final long userId = ContentUris.parseId(uri);
+                long userId = ContentUris.parseId(uri);
                 if (userId != -1) {
-                    final String SELECTION = DatabaseContract.UserEntry.COLUMN_USER_ID + "=?";
+                    final String SELECTION = UserEntry.COLUMN_USER_ID + "=?";
                     final String[] SELECTION_ARGS = new String[]{String.valueOf(userId)};
                     retCursor = mDatabaseHelper.getWritableDatabase().query(
-                            DatabaseContract.UserEntry.TABLE_NAME,
+                            UserEntry.TABLE_NAME,
                             projection,
                             SELECTION,
                             SELECTION_ARGS,
@@ -98,12 +98,9 @@ public class DataProvider extends ContentProvider {
                 break;
 
             case USER_GROUP_PARTICIPATION:
-                // first get the table name from the URI using the helper method
-                String tableName = DatabaseContract.UserParticipationEntry.getTableNameFromUri(uri);
-
                 // Now query the database
                 retCursor = mDatabaseHelper.getWritableDatabase().query(
-                        tableName,
+                        UserParticipationEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -113,14 +110,30 @@ public class DataProvider extends ContentProvider {
                 );
                 break;
 
+            case USER_GROUP_PARTICIPATION_WITH_USER_ID:
+                userId = ContentUris.parseId(uri);
+                retCursor = mDatabaseHelper.getWritableDatabase().query(
+                        UserParticipationEntry.TABLE_NAME,
+                        projection,
+                        new String(UserParticipationEntry.COLUMN_USER_ID + " = ?"),
+                        new String[]{String.valueOf(userId)},
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+
             case USER_PARTICIPATION_WITH_GROUP:
-                tableName = DatabaseContract.Joins.getTableNameFromUserParticipationWithGroupUri(uri);
-                retCursor = queryUserParticipationWithGroup(tableName, projection, selection, selectionArgs, sortOrder);
+                retCursor = queryUserParticipationWithGroup(
+                        uri,
+                        projection,
+                        sortOrder
+                );
                 break;
 
             case GROUPS:
                 retCursor = mDatabaseHelper.getWritableDatabase().query(
-                        DatabaseContract.GroupEntry.TABLE_NAME,
+                        GroupEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -132,9 +145,9 @@ public class DataProvider extends ContentProvider {
 
             case GROUPS_ID:
                 retCursor = mDatabaseHelper.getWritableDatabase().query(
-                        DatabaseContract.GroupEntry.TABLE_NAME,
+                        GroupEntry.TABLE_NAME,
                         projection,
-                        DatabaseContract.GroupEntry._ID + " = " + ContentUris.parseId(uri),
+                        GroupEntry.COLUMN_GROUP_ID + " = " + ContentUris.parseId(uri),
                         null,
                         null,
                         null,
@@ -145,8 +158,8 @@ public class DataProvider extends ContentProvider {
 
             case GROUP_DETAILS:
                 // First get the table name from the URI
-                String groupDetailsTableName = DatabaseContract.GroupDetailsEntry.
-                        getTableNameFromUri(uri);
+                String groupDetailsTableName = GroupDetailsEntry.
+                        TABLE_NAME;
 
                 // Now query the database
                 retCursor = mDatabaseHelper.getWritableDatabase().query(
@@ -180,19 +193,21 @@ public class DataProvider extends ContentProvider {
 
             */
             case USERS:
-                return DatabaseContract.UserEntry.CONTENT_TYPE;
+                return UserEntry.CONTENT_TYPE;
             case USERS_ID:
-                return DatabaseContract.UserEntry.CONTENT_ITEM_TYPE;
+                return UserEntry.CONTENT_ITEM_TYPE;
             case USER_GROUP_PARTICIPATION:
-                return DatabaseContract.UserParticipationEntry.SUB_CONTENT_TYPE;
+                return UserParticipationEntry.CONTENT_TYPE;
+            case USER_GROUP_PARTICIPATION_WITH_USER_ID:
+                return UserParticipationEntry.CONTENT_TYPE;
             case USER_PARTICIPATION_WITH_GROUP:
-                return DatabaseContract.Joins.CONTENT_TYPE;
+                return Joins.CONTENT_TYPE;
             case GROUPS:
-                return DatabaseContract.GroupEntry.CONTENT_TYPE;
+                return GroupEntry.CONTENT_TYPE;
             case GROUPS_ID:
-                return DatabaseContract.GroupEntry.CONTENT_ITEM_TYPE;
+                return GroupEntry.CONTENT_ITEM_TYPE;
             case GROUP_DETAILS:
-                return DatabaseContract.GroupDetailsEntry.SUB_CONTENT_TYPE;
+                return GroupDetailsEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown Uri : " + uri);
         }
@@ -208,23 +223,22 @@ public class DataProvider extends ContentProvider {
             case USERS:
                 long _id = mDatabaseHelper
                         .getWritableDatabase()
-                        .insert(DatabaseContract.UserEntry.TABLE_NAME, null, contentValues);
+                        .insert(UserEntry.TABLE_NAME, null, contentValues);
                 if (_id > 0)
-                    returnUri = DatabaseContract.UserEntry.buildUsersUri(_id);
+                    returnUri = UserEntry.buildUsersUri(_id);
                 else
                     throw new SQLException("Failed to insert row ");
                 break;
 
             case USER_GROUP_PARTICIPATION:
-                String tableName = DatabaseContract.UserParticipationEntry.getTableNameFromUri(uri);
                 _id = mDatabaseHelper
                         .getWritableDatabase()
-                        .insert(tableName, null, contentValues);
+                        .insert(UserParticipationEntry.TABLE_NAME, null, contentValues);
                 if (_id > 0) {
                     returnUri = uri;
                     // Notify change on the join uri
                     getContext().getContentResolver().notifyChange(
-                            DatabaseContract.Joins.JOIN_BASE_CONTENT_URI, null);
+                            Joins.JOIN_BASE_CONTENT_URI, null);
                 } else
                     throw new SQLException("Failed to insert row ");
                 break;
@@ -232,12 +246,12 @@ public class DataProvider extends ContentProvider {
             case GROUPS:
                 _id = mDatabaseHelper
                         .getWritableDatabase()
-                        .insert(DatabaseContract.GroupEntry.TABLE_NAME, null, contentValues);
+                        .insert(GroupEntry.TABLE_NAME, null, contentValues);
                 if (_id > 0) {
-                    returnUri = DatabaseContract.GroupEntry.buildGroupsUri(_id);
+                    returnUri = GroupEntry.buildGroupsUri(_id);
                     // Notify change on the join uri
                     getContext().getContentResolver().notifyChange(
-                            DatabaseContract.Joins.JOIN_BASE_CONTENT_URI, null);
+                            Joins.JOIN_BASE_CONTENT_URI, null);
                 } else
                     throw new SQLException("Failed to insert row ");
                 break;
@@ -245,7 +259,7 @@ public class DataProvider extends ContentProvider {
             case GROUP_DETAILS:
                 _id = mDatabaseHelper
                         .getWritableDatabase()
-                        .insert(DatabaseContract.GroupDetailsEntry.getTableNameFromUri(uri), null, contentValues);
+                        .insert(GroupDetailsEntry.TABLE_NAME, null, contentValues);
                 if (_id > 0)
                     returnUri = uri;
                 else
@@ -266,29 +280,29 @@ public class DataProvider extends ContentProvider {
             case USERS:
                 returnRows = mDatabaseHelper
                         .getWritableDatabase()
-                        .delete(DatabaseContract.UserEntry.TABLE_NAME, selection, selectionArgs);
+                        .delete(UserEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             case GROUPS:
                 returnRows = mDatabaseHelper
                         .getWritableDatabase()
-                        .delete(DatabaseContract.GroupEntry.TABLE_NAME, selection, selectionArgs);
+                        .delete(GroupEntry.TABLE_NAME, selection, selectionArgs);
                 // Notify change on the join uri
                 getContext().getContentResolver().notifyChange(
-                        DatabaseContract.Joins.JOIN_BASE_CONTENT_URI, null);
+                        Joins.JOIN_BASE_CONTENT_URI, null);
 
                 break;
             case USER_GROUP_PARTICIPATION:
                 returnRows = mDatabaseHelper
                         .getWritableDatabase()
-                        .delete(DatabaseContract.UserParticipationEntry.getTableNameFromUri(uri), selection, selectionArgs);
+                        .delete(UserParticipationEntry.TABLE_NAME, selection, selectionArgs);
                 // Notify change on the join uri
                 getContext().getContentResolver().notifyChange(
-                        DatabaseContract.Joins.JOIN_BASE_CONTENT_URI, null);
+                        Joins.JOIN_BASE_CONTENT_URI, null);
                 break;
             case GROUP_DETAILS:
                 returnRows = mDatabaseHelper
                         .getWritableDatabase()
-                        .delete(DatabaseContract.GroupDetailsEntry.getTableNameFromUri(uri), selection, selectionArgs);
+                        .delete(GroupDetailsEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported Operation");
@@ -314,28 +328,28 @@ public class DataProvider extends ContentProvider {
             case USERS:
                 returnRows = mDatabaseHelper
                         .getWritableDatabase()
-                        .update(DatabaseContract.UserEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+                        .update(UserEntry.TABLE_NAME, contentValues, selection, selectionArgs);
                 break;
             case GROUPS:
                 returnRows = mDatabaseHelper
                         .getWritableDatabase()
-                        .update(DatabaseContract.GroupEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+                        .update(GroupEntry.TABLE_NAME, contentValues, selection, selectionArgs);
                 // Notify change on the join uri
                 getContext().getContentResolver().notifyChange(
-                        DatabaseContract.Joins.JOIN_BASE_CONTENT_URI, null);
+                        Joins.JOIN_BASE_CONTENT_URI, null);
                 break;
             case USER_GROUP_PARTICIPATION:
                 returnRows = mDatabaseHelper
                         .getWritableDatabase()
-                        .update(DatabaseContract.UserParticipationEntry.getTableNameFromUri(uri), contentValues, selection, selectionArgs);
+                        .update(UserParticipationEntry.TABLE_NAME, contentValues, selection, selectionArgs);
                 // Notify change on the join uri
                 getContext().getContentResolver().notifyChange(
-                        DatabaseContract.Joins.JOIN_BASE_CONTENT_URI, null);
+                        Joins.JOIN_BASE_CONTENT_URI, null);
                 break;
             case GROUP_DETAILS:
                 returnRows = mDatabaseHelper
                         .getWritableDatabase()
-                        .update(DatabaseContract.GroupDetailsEntry.getTableNameFromUri(uri), contentValues, selection, selectionArgs);
+                        .update(GroupDetailsEntry.TABLE_NAME, contentValues, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported Operation");
@@ -351,53 +365,53 @@ public class DataProvider extends ContentProvider {
     public int bulkInsert(Uri uri, ContentValues[] values) {
         final SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
-        int returnCount=0;
+        int returnCount = 0;
         switch (match) {
-            case GROUPS :
+            case GROUPS:
                 db.beginTransaction();
                 try {
                     for (ContentValues contentValues : values) {
-                        long _id = db.insert(DatabaseContract.GroupEntry.TABLE_NAME , null , contentValues);
+                        long _id = db.insert(GroupEntry.TABLE_NAME, null, contentValues);
                         if (_id != -1)
                             returnCount++;
                     }
                     db.setTransactionSuccessful();
-                }finally {
+                } finally {
                     db.endTransaction();
                 }
                 break;
-            case GROUP_DETAILS :
-                String TABLE_NAME = DatabaseContract.GroupDetailsEntry.getTableNameFromUri(uri);
+            case GROUP_DETAILS:
+                String TABLE_NAME = GroupDetailsEntry.TABLE_NAME;
                 db.beginTransaction();
                 try {
                     for (ContentValues contentValues : values) {
-                        long _id = db.insert(TABLE_NAME , null , contentValues);
-                        if (_id!=-1)
+                        long _id = db.insert(TABLE_NAME, null, contentValues);
+                        if (_id != -1)
                             returnCount++;
                     }
                     db.setTransactionSuccessful();
-                }finally {
+                } finally {
                     db.endTransaction();
                 }
                 break;
-            case USER_GROUP_PARTICIPATION :
-                TABLE_NAME = DatabaseContract.UserParticipationEntry.getTableNameFromUri(uri);
+            case USER_GROUP_PARTICIPATION:
+                TABLE_NAME = UserParticipationEntry.TABLE_NAME;
                 db.beginTransaction();
                 try {
                     for (ContentValues contentValues : values) {
-                        long _id = db.insert(TABLE_NAME,null,contentValues);
-                        if (_id!=-1)
+                        long _id = db.insert(TABLE_NAME, null, contentValues);
+                        if (_id != -1)
                             returnCount++;
                     }
                     db.setTransactionSuccessful();
-                }finally {
+                } finally {
                     db.endTransaction();
                 }
                 break;
             default:
-                return super.bulkInsert(uri,values);
+                return super.bulkInsert(uri, values);
         }
-        getContext().getContentResolver().notifyChange(uri,null);
+        getContext().getContentResolver().notifyChange(uri, null);
         return returnCount;
     }
 
@@ -413,53 +427,52 @@ public class DataProvider extends ContentProvider {
          So whenever a query will be performed the URI Matcher will return the code and
          we can do the respective query */
 
-        uriMatcher.addURI(CONTENT_AUTHORITY, DatabaseContract.PATH_USERS, USERS);
-        uriMatcher.addURI(CONTENT_AUTHORITY, DatabaseContract.PATH_USERS + "/#", USERS_ID);
+        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_USERS, USERS);
+        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_USERS + "/#", USERS_ID);
         /*
             Since every group participation query URI will have the table name attached with the
             SUB_CONTENT_URI , therefore we match it with SUB_CONTENT_URI plus the table name.
         */
-        uriMatcher.addURI(CONTENT_AUTHORITY, DatabaseContract.PATH_USER_PARTICIPATION + "/*", USER_GROUP_PARTICIPATION);
-
+        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_USER_PARTICIPATION, USER_GROUP_PARTICIPATION);
+        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_USER_PARTICIPATION + "/#", USER_GROUP_PARTICIPATION_WITH_USER_ID);
         /* Special Uri for join between user-participation and groups table */
         uriMatcher.addURI(CONTENT_AUTHORITY,
-                DatabaseContract.Joins.PATH_JOIN +
-                        "/" + DatabaseContract.Joins.PATH_USER_PARTICPIATION_WITH_GROUPS,
+                Joins.PATH_JOIN +
+                        "/" + Joins.PATH_USER_PARTICPIATION_WITH_GROUPS,
                 USER_PARTICIPATION_WITH_GROUP);
 
-        uriMatcher.addURI(CONTENT_AUTHORITY, DatabaseContract.PATH_GROUPS, GROUPS);
-        uriMatcher.addURI(CONTENT_AUTHORITY, DatabaseContract.PATH_GROUPS + "/#", GROUPS_ID);
+        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_GROUPS, GROUPS);
+        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_GROUPS + "/#", GROUPS_ID);
 
         /*
             Since every group details query URI will have the table name attached with the
             SUB_CONTENT_URI , therefore we match it with SUB_CONTENT_URI plus the table name.
         */
-        uriMatcher.addURI(CONTENT_AUTHORITY, DatabaseContract.PATH_GROUP_DETAILS + "/*", GROUP_DETAILS);
+        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_GROUP_DETAILS , GROUP_DETAILS);
 
 
         return uriMatcher;
     }
 
     /* Helper method to query the datbase for the join between the User Participation and Group Table*/
-    private static final Cursor queryUserParticipationWithGroup(String tableName,
+    private static final Cursor queryUserParticipationWithGroup(Uri uri,
                                                                 String[] projection,
-                                                                String selection,
-                                                                String[] selectionArgs,
                                                                 String sortOrder) {
 
+        final String userId = Joins.getUserIdFromUserParticipationWithGroupUri(uri);
         mUserParticipationWithGroupQueryBuilder = new SQLiteQueryBuilder();
-        mUserParticipationWithGroupQueryBuilder.setTables(tableName + " INNER JOIN " +
-                DatabaseContract.GroupEntry.TABLE_NAME + " ON " +
-                tableName + "." +
-                DatabaseContract.UserParticipationEntry.COLUMN_GROUP_KEY + " = " +
-                DatabaseContract.GroupEntry.TABLE_NAME + "." +
-                DatabaseContract.GroupEntry.COLUMN_GROUP_ID
+        mUserParticipationWithGroupQueryBuilder.setTables(UserParticipationEntry.TABLE_NAME + " INNER JOIN " +
+                GroupEntry.TABLE_NAME + " ON " +
+                UserParticipationEntry.TABLE_NAME + "." +
+                UserParticipationEntry.COLUMN_GROUP_ID + " = " +
+                GroupEntry.TABLE_NAME + "." +
+                GroupEntry.COLUMN_GROUP_ID
         );
         return mUserParticipationWithGroupQueryBuilder.query(
                 mDatabaseHelper.getReadableDatabase(),
                 projection,
-                selection,
-                selectionArgs,
+                new String(UserParticipationEntry.COLUMN_USER_ID + " = ?"),
+                new String[]{userId},
                 null,
                 null,
                 sortOrder

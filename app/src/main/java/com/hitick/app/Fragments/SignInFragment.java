@@ -204,47 +204,45 @@ public class SignInFragment extends Fragment {
         }
     }
 
-    /** Helper method to parse the data and insert into the database */
-    public void parseInsert(JSONObject response,Context context) {
+    /**
+     * Helper method to parse the data and insert into the database
+     */
+    public void parseInsert(JSONObject response, Context context) {
         try {
+            Log.d(LOG_TAG, "parseInsert: " + response.toString());
             JSONObject personObject = response.getJSONObject(KEY_RESPONSE_PERSON_OBJECT);
             final long userId = personObject.getLong(KEY_RESPONSE_USER_ID);
+            if (userId < 0) {
+                Log.d(LOG_TAG, "parseInsert: Some error occurred");
+                return;
+            }
             final String firstName = personObject.getString(KEY_RESPONSE_FIRST_NAME);
             final String lastName = personObject.getString(KEY_RESPONSE_LAST_NAME);
             final String mobileNumber = personObject.getString(KEY_RESPONSE_MOBILE);
             final String email = personObject.getString(KEY_RESPONSE_EMAIL);
             final String password = personObject.getString(KEY_RESPONSE_PASSWORD);
-            final String userParticipationTable;
-            if (Utility.checkUserInDatabase(userId, getActivity())) {
-                userParticipationTable =
-                        Utility.getUserGroupParticipationTable(getActivity(), userId);
-            } else {
-                userParticipationTable = "UPT_" + userId;
 
-                // Create a fresh User-Participation-Table using the helper method from our
-                // DatabaseHelper
-                DatabaseHelper mHelper = new DatabaseHelper(context);
-                mHelper.addGroupParticipationTable(userParticipationTable);
-
-            }
 
             ContentValues userValues = new ContentValues();
-            userValues.put(DatabaseContract.UserEntry.COLUMN_FIRST_NAME, firstName);
-            userValues.put(DatabaseContract.UserEntry.COLUMN_LAST_NAME, lastName);
-            userValues.put(DatabaseContract.UserEntry.COLUMN_MOBILE_NUMBER, mobileNumber);
-            userValues.put(DatabaseContract.UserEntry.COLUMN_EMAIL, email);
-            userValues.put(DatabaseContract.UserEntry.COLUMN_PASSWORD, password);
-            userValues.put(DatabaseContract.UserEntry.COLUMN_USER_GROUP_PARTICIPATION_TABLE, userParticipationTable);
-            userValues.put(DatabaseContract.UserEntry.COLUMN_USER_ID, userId);
+            userValues.put(UserEntry.COLUMN_FIRST_NAME, firstName);
+            userValues.put(UserEntry.COLUMN_LAST_NAME, lastName);
+            userValues.put(UserEntry.COLUMN_MOBILE_NUMBER, mobileNumber);
+            userValues.put(UserEntry.COLUMN_EMAIL, email);
+            userValues.put(UserEntry.COLUMN_PASSWORD, password);
+            userValues.put(UserEntry.COLUMN_USER_ID, userId);
 
             getContext().getContentResolver().
-                    insert(DatabaseContract.UserEntry.CONTENT_URI, userValues);
+                    insert(UserEntry.CONTENT_URI, userValues);
 
             // Parse the group data and insert in the database
             JSONArray groupListArray = response.getJSONArray(KEY_RESPONSE_GROUP_LIST);
 
             Vector<ContentValues> cvVector = new Vector<>();
+            Vector<ContentValues> upVector = new Vector<>();
+
             ContentValues groupValues = new ContentValues();
+            ContentValues userParticipationValues = new ContentValues();
+
             for (int i = 0; i < groupListArray.length(); i++) {
                 JSONObject groupObject = groupListArray.getJSONObject(i);
                 final long groupId = groupObject.getLong(KEY_RESPONSE_GROUP_ID);
@@ -252,51 +250,31 @@ public class SignInFragment extends Fragment {
                 final String groupName = groupObject.getString(KEY_RESPONSE_GROUP_NAME);
                 final String groupPassword = groupObject.getString(KEY_RESPONSE_GROUP_PASSWORD);
                 final long groupAdminId = groupObject.getLong(KEY_RESPONSE_GROUP_ADMIN_ID);
-                final String groupDetailsTable;
-                if (Utility.checkGroupInDatabase(groupId, context)) {
-                    groupDetailsTable = Utility.getGroupDetailsTable(groupId, context);
-                } else {
-                    groupDetailsTable = "GDT_" + groupId;
-                    // Create a group details table from the Helper method from the Helper class
-                    DatabaseHelper mHelper = new DatabaseHelper(context);
-                    mHelper.addGroupDetailsTable(groupDetailsTable);
-                }
 
-                groupValues.put(DatabaseContract.GroupEntry.COLUMN_GROUP_ID, groupId);
-                groupValues.put(DatabaseContract.GroupEntry.COLUMN_GROUP_ADMIN_ID, groupAdminId);
-                groupValues.put(DatabaseContract.GroupEntry.COLUMN_GROUP_NAME, groupName);
-                groupValues.put(DatabaseContract.GroupEntry.COLUMN_GROUP_PASSWORD, groupPassword);
-                groupValues.put(DatabaseContract.GroupEntry.COLUMN_GROUP_MEMBERS, groupMemberCount);
-                groupValues.put(DatabaseContract.GroupEntry.COLUMN_GROUP_DETAILS, groupDetailsTable);
+
+                groupValues.put(GroupEntry.COLUMN_GROUP_ID, groupId);
+                groupValues.put(GroupEntry.COLUMN_GROUP_ADMIN_ID, groupAdminId);
+                groupValues.put(GroupEntry.COLUMN_GROUP_NAME, groupName);
+                groupValues.put(GroupEntry.COLUMN_GROUP_PASSWORD, groupPassword);
+                groupValues.put(GroupEntry.COLUMN_GROUP_MEMBERS, groupMemberCount);
+
+
+                userParticipationValues.put(UserParticipationEntry.COLUMN_USER_ID, userId);
+                userParticipationValues.put(UserParticipationEntry.COLUMN_GROUP_ID, groupId);
+                userParticipationValues.put(UserParticipationEntry.COLUMN_GROUP_ADMINISTRATOR,
+                        userId == groupAdminId ? 1 : 0);
 
                 cvVector.add(groupValues);
+                upVector.add(userParticipationValues);
             }
-            if (cvVector.size()>0) {
+            if (cvVector.size() > 0) {
                 ContentValues[] cvArray = new ContentValues[cvVector.size()];
                 cvVector.toArray(cvArray);
-                context.getContentResolver().bulkInsert(DatabaseContract.GroupEntry.CONTENT_URI,cvArray);
+                context.getContentResolver().bulkInsert(GroupEntry.CONTENT_URI, cvArray);
 
-                // Now insert in the user participation Table
-                cvVector.clear();
-                ContentValues userParticipationValues = new ContentValues();
-                for (ContentValues contentValues : cvArray) {
-                    userParticipationValues.put(
-                            DatabaseContract.UserParticipationEntry.COLUMN_GROUP_KEY,
-                            contentValues.getAsLong(DatabaseContract.GroupEntry.COLUMN_GROUP_ID));
-                    final long adminId = contentValues.getAsLong(DatabaseContract.GroupEntry.COLUMN_GROUP_ADMIN_ID);
-                    userParticipationValues.put(
-                            DatabaseContract.UserParticipationEntry.COLUMN_GROUP_ADMINISTRATOR,
-                            adminId == userId ? 1 : 0
-                    );
-                    cvVector.add(userParticipationValues);
-                }
-                if (cvVector.size()>0) {
-                    cvArray = new ContentValues[cvVector.size()];
-                    cvVector.toArray(cvArray);
-                    Uri uri = DatabaseContract.UserParticipationEntry.buildContentUri(userParticipationTable);
-                    context.getContentResolver().bulkInsert(uri,cvArray);
-                }
-                cvVector.clear();
+                ContentValues[] upArray = new ContentValues[upVector.size()];
+                upVector.toArray(upArray);
+                context.getContentResolver().bulkInsert(UserParticipationEntry.CONTENT_URI, upArray);
             }
         } catch (JSONException e) {
             e.printStackTrace();
