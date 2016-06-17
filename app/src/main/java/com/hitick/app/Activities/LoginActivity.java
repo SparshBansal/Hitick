@@ -1,6 +1,12 @@
 package com.hitick.app.Activities;
 
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -13,43 +19,45 @@ import com.hitick.app.Fragments.SignInFragment;
 import com.hitick.app.Fragments.SignUpFragment;
 import com.hitick.app.R;
 
+import java.util.ArrayList;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
+public class LoginActivity extends AppCompatActivity {
 
-    private static Toolbar toolbar;
-    private static Button bSignUp;
-    private static Button bSignIn;
-    private static FrameLayout fragmentContainer;
+    private static final String TITLE_SIGN_IN = "SIGN IN";
+    private static final String TITLE_SIGN_UP = "SIGN UP";
+
+    private ViewPager viewPager = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
 
-        //Setup the instance variables
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        bSignIn = (Button) findViewById(R.id.bSignIn);
-        bSignUp = (Button) findViewById(R.id.bSignUp);
-        fragmentContainer = (FrameLayout) findViewById(R.id.container);
-
-        bSignIn.setOnClickListener(this);
-        bSignUp.setOnClickListener(this);
-
+        // Initialize the toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(getResources().getString(R.string.app_name));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // Add the Sign Up Fragment Initially
-        android.support.v4.app.FragmentManager manager = getSupportFragmentManager();
-        android.support.v4.app.FragmentTransaction transaction = manager.beginTransaction();
+        viewPager = (ViewPager) findViewById(R.id.vp_login_pager);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tl_tabs);
 
-        if (savedInstanceState == null) {
-            transaction.add(R.id.container, new SignUpFragment());
-        } else {
-            transaction.replace(R.id.container, new SignUpFragment());
-        }
+        setupViewPager();
+        tabLayout.setupWithViewPager(viewPager);
+    }
 
-        transaction.commit();
+    // Initialises and sets up the view pager
+    private void setupViewPager() {
+        ViewPagerAdapter mAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+
+        // Add our fragments one by one
+        Fragment signInFrag = new SignInFragment();
+        Fragment signUpFrag = new SignUpFragment();
+
+        mAdapter.addFragment(signInFrag , TITLE_SIGN_IN);
+        mAdapter.addFragment(signUpFrag , TITLE_SIGN_UP);
+
+        viewPager.setAdapter(mAdapter);
     }
 
 
@@ -74,24 +82,34 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onClick(View view) {
-        final int id = view.getId();
-        switch (id) {
-            case R.id.bSignIn:
-                //Replace the current fragment with Sign In Details Fragment
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.container, new SignInFragment())
-                        .commit();
-                break;
-            case R.id.bSignUp:
-                //Replace the current fragment with Sign Up Details Fragment
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.container , new SignUpFragment())
-                        .commit();
-                break;
+    // Adapter class for the tabs
+    class ViewPagerAdapter extends FragmentPagerAdapter{
+
+        private ArrayList<Fragment> fragmentList = new ArrayList<>();
+        private ArrayList<String> fragmentTitleList = new ArrayList<>();
+
+        public ViewPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        public void addFragment(Fragment fragment , String fragmentTitle){
+            fragmentList.add(fragment);
+            fragmentTitleList.add(fragmentTitle);
+        }
+
+        @Override
+        public int getCount() {
+            return fragmentList.size();
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return fragmentList.get(position);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return fragmentTitleList.get(position);
         }
     }
 }

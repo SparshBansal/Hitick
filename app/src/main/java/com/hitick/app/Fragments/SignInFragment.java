@@ -84,9 +84,9 @@ public class SignInFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_sign_in_details, container, false);
 
         //Initialize the instance variables
-        etMobile = (EditText) rootView.findViewById(R.id.etMobile);
-        etPassword = (EditText) rootView.findViewById(R.id.etPassword);
-        bSignIn = (Button) rootView.findViewById(R.id.bSignIn);
+        etMobile = (EditText) rootView.findViewById(R.id.et_mobile);
+        etPassword = (EditText) rootView.findViewById(R.id.et_password);
+        bSignIn = (Button) rootView.findViewById(R.id.b_sign_in);
 
         //Setup the onClick Listener and Post the data to the server
         bSignIn.setOnClickListener(new View.OnClickListener() {

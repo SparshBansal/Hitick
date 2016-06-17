@@ -102,12 +102,12 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
         View rootView = inflater.inflate(R.layout.fragment_sign_up_details, container, false);
 
         //Find the button and set onClick Listener
-        bSignUp = (Button) rootView.findViewById(R.id.bSignUp);
-        etFirstName = (EditText) rootView.findViewById(R.id.etFirstName);
-        etLastName = (EditText) rootView.findViewById(R.id.etLastName);
-        etEmail = (EditText) rootView.findViewById(R.id.etEmail);
-        etMobile = (EditText) rootView.findViewById(R.id.etMobile);
-        etPassword = (EditText) rootView.findViewById(R.id.etPassword);
+        bSignUp = (Button) rootView.findViewById(R.id.b_sign_up);
+        etFirstName = (EditText) rootView.findViewById(R.id.et_first_name);
+        etLastName = (EditText) rootView.findViewById(R.id.et_last_name);
+        etEmail = (EditText) rootView.findViewById(R.id.et_email);
+        etMobile = (EditText) rootView.findViewById(R.id.et_mobile);
+        etPassword = (EditText) rootView.findViewById(R.id.et_password);
 
         mSmsReceiver = new SmsReceiver(getActivity());
         intentFilter = new IntentFilter();
@@ -140,15 +140,25 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.bSignUp:
+            case R.id.b_sign_up:
                 signUp();
                 break;
         }
     }
 
 
-    void signUp() {
+    private void signUp() {
+        saveUserData();
+        // Start the service for obtaining a registration token for the device
+        if (Utility.checkPlayServices(getActivity())) {
+            // Start intent service to register with GCM
+            Intent intent = new Intent(getActivity(), HitickGCMRegistrationService.class);
+            getActivity().startService(intent);
+        }
 
+    }
+
+    private void saveUserData(){
         //Save the user data in Shared Preferences for now
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
         editor.putString(getString(R.string.KEY_PREFERENCE_SIGNUP_FIRST_NAME), etFirstName.getText().toString());
@@ -157,14 +167,6 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
         editor.putString(getString(R.string.KEY_PREFERENCE_SIGNUP_MOBILE_NUMBER), etMobile.getText().toString());
         editor.putString(getString(R.string.KEY_PREFERENCE_SIGNUP_PASSWORD), etPassword.getText().toString());
         editor.commit();
-
-        // Start the service for obtaining a registration token for the device
-        if (Utility.checkPlayServices(getActivity())) {
-            // Start intent service to register with GCM
-            Intent intent = new Intent(getActivity(), HitickGCMRegistrationService.class);
-            getActivity().startService(intent);
-        }
-
     }
 
     public class GCMRegistrationReceiver extends BroadcastReceiver {

@@ -5,33 +5,38 @@
     android:orientation="vertical"
     tools:context=".Fragments.SignInFragment">
 
-    <EditText
-        android:id="@+id/etMobile"
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/signup_mobile"
-        android:paddingBottom="@dimen/signup_editText_padding"
-        android:paddingLeft="@dimen/signup_editText_padding"
-        android:paddingTop="@dimen/signup_editText_padding"
-        android:textSize="@dimen/signup_page_font_size" />
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp">
 
-    <EditText
-        android:id="@+id/etPassword"
+        <EditText
+            android:id="@+id/et_mobile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/signup_mobile" />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/signup_passsword"
-        android:inputType="textPassword"
-        android:paddingBottom="@dimen/signup_editText_padding"
-        android:paddingLeft="@dimen/signup_editText_padding"
-        android:paddingTop="@dimen/signup_editText_padding"
-        android:textSize="@dimen/signup_page_font_size" />
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp">
+
+        <EditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/signup_passsword"
+            android:inputType="textPassword" />
+    </android.support.design.widget.TextInputLayout>
 
     <Button
-        android:id="@+id/bSignIn"
+        android:id="@+id/b_sign_in"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_margin="@dimen/signup_button_margin"
-        android:text="@string/login_button_signin" />
-
+        android:text="@string/login_button_signin"
+        tools:style="@style/Widget.AppCompat.Button.Borderless" />
 </LinearLayout>

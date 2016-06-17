@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="blue_pressed">@android:color/holo_blue_dark</color>
-    <color name="blue_normal">@android:color/holo_blue_light</color>
-
-    <!-- Color Selectors for SignIn/SignUp Buttons -->
-    <color name="red_normal">@android:color/holo_red_light</color>
-    <color name="red_pressed">@android:color/holo_red_dark</color>
-
-    <color name="colorPrimary">@android:color/holo_blue_light</color>
-
+    <color name="colorPrimary">#00BCD4</color>
+    <color name="colorPrimaryDark">#00838F</color>
+    <color name="colorAccent">#FFC107</color>
 </resources>
