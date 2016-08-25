@@ -31,7 +31,7 @@ public class DatabaseContract {
 
     /* Details for the database Helper Class */
     public static final String DATABASE_NAME = "database_hitick";
-    public static final int DATABASE_VERSION = 5;
+    public static final int DATABASE_VERSION = 9;
 
     /*
         User Entry -- User Table -- Details of Users

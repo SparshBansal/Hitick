@@ -82,7 +82,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                         // Primary Key Constraint
                         "PRIMARY KEY ( " + UserParticipationEntry.COLUMN_USER_ID + "," +
-                        UserParticipationEntry.COLUMN_GROUP_ID + "), " +
+                        UserParticipationEntry.COLUMN_GROUP_ID + " ), " +
 
                         // Foreign Key Constraints
                         "FOREIGN KEY (" + UserParticipationEntry.COLUMN_USER_ID + ") REFERENCES " +

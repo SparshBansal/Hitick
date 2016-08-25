@@ -396,7 +396,9 @@ public class DataProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues contentValues : values) {
+                        Log.d(LOG_TAG, "bulkInsert: "  + contentValues.getAsString(UserParticipationEntry.COLUMN_GROUP_ID));
                         long _id = db.insert(TABLE_NAME, null, contentValues);
+                        Log.d(LOG_TAG, "bulkInsert: " + _id);
                         if (_id != -1)
                             returnCount++;
                     }

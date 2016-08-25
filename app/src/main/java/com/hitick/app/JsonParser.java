@@ -22,14 +22,14 @@ public class JsonParser {
     private static final String KEY_RESPONSE_USERNAME = "username";
     private static final String KEY_RESPONSE_PASSWORD = "password";
     private static final String KEY_RESPONSE_EMAIL = "email";
-    private static final String KEY_RESPONSE_MOBILE = "mobileNumber";
+    private static final String KEY_RESPONSE_MOBILE = "mobile";
     private static final String KEY_RESPONSE_GROUP_LIST = "groups";
 
     private static final String KEY_RESPONSE_GROUP_NAME = "groupName";
     private static final String KEY_RESPONSE_GROUP_PASSWORD = "groupPassword";
-    private static final String KEY_RESPONSE_GROUP_ADMIN_ID = "refAdminId";
-    private static final String KEY_RESPONSE_MEMBER_COUNT = "memberCount";
-    private static final String KEY_RESPONSE_GROUP_ID = "id";
+    private static final String KEY_RESPONSE_GROUP_ADMIN_ID = "adminId";
+    private static final String KEY_RESPONSE_MEMBER_COUNT = "groupMembers";
+    private static final String KEY_RESPONSE_GROUP_ID = "_id";
 
     private static final String TAG = JsonParser.class.getSimpleName();
 
@@ -41,10 +41,11 @@ public class JsonParser {
         try {
             Log.d(TAG, "parseInsert: " + response.toString());
             final String userId = response.getString(KEY_RESPONSE_USER_ID);
-            if (userId.isEmpty() || userId == null) {
+            if (userId.isEmpty()) {
                 Log.d(TAG, "parseInsert: Some error occurred");
                 return;
             }
+
             final String username = response.getString(KEY_RESPONSE_USERNAME);
             final String mobileNumber = response.getString(KEY_RESPONSE_MOBILE);
             final String email = response.getString(KEY_RESPONSE_EMAIL);
@@ -68,10 +69,12 @@ public class JsonParser {
             Vector<ContentValues> cvVector = new Vector<>();
             Vector<ContentValues> upVector = new Vector<>();
 
-            ContentValues groupValues = new ContentValues();
-            ContentValues userParticipationValues = new ContentValues();
 
             for (int i = 0; i < groupListArray.length(); i++) {
+
+                ContentValues groupValues = new ContentValues();
+                ContentValues userParticipationValues = new ContentValues();
+
                 JSONObject groupObject = groupListArray.getJSONObject(i);
 
                 final String groupId = groupObject.getString(KEY_RESPONSE_GROUP_ID);
@@ -86,8 +89,6 @@ public class JsonParser {
                 groupValues.put(DatabaseContract.GroupEntry.COLUMN_GROUP_NAME, groupName);
                 groupValues.put(DatabaseContract.GroupEntry.COLUMN_GROUP_PASSWORD, groupPassword);
                 groupValues.put(DatabaseContract.GroupEntry.COLUMN_GROUP_MEMBERS, groupMemberCount);
-
-                Log.d(TAG, "parseInsert: " + groupName);
 
                 userParticipationValues.put(DatabaseContract.UserParticipationEntry.COLUMN_USER_ID, userId);
                 userParticipationValues.put(DatabaseContract.UserParticipationEntry.COLUMN_GROUP_ID, groupId);
