@@ -186,7 +186,7 @@ public class TestDb extends AndroidTestCase {
         final String testMobileNumber = "+919953652224";
         final String testPassword = "abc123";
         final String testEmail = "sparsh.bansal17895@gmail.com";
-        long testUserId = 230002;
+        final String testUserId = "230002";
 
         /*
             Content Values object to put values into the database
@@ -211,7 +211,7 @@ public class TestDb extends AndroidTestCase {
         final String testGroupPassword = "A92K14";
         final int testGroupMembers = 30;
         final int testGroupAdminId = 23089;
-        final long testGroupId = 230234;
+        final String testGroupId = "230234";
 
         /*
             Clear the content values object and put the data to be inserted in the group table
@@ -233,9 +233,9 @@ public class TestDb extends AndroidTestCase {
              Now lets try and insert in the table
              Dummy data for group Participation Table
          */
-        final long testGroupId = 230234;
+        final String testGroupId = "230234";
         final int testGroupAdministrator = 1;
-        final long testUserId = 230002;
+        final String testUserId = "230002";
 
         /*Now clear the content values object and put the new data*/
         ContentValues contentValues = new ContentValues();
@@ -256,11 +256,11 @@ public class TestDb extends AndroidTestCase {
         final int testInFavor = 23;
         final int testOpposed = 16;
         final int testNotVoted = 1;
-        final int testPollId = 1240;
+        final String testPollId = "1240";
         final String testPollDatetime = "20151512";
         final int testTimeLeft = 4500;
         final String testPollResult = "Mass Bunk Tomorrow!!";
-        final long testGroupId = 230234;
+        final String testGroupId = "230234";
 
         /*
             Clear the content Values Object and put the new values

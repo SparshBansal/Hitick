@@ -90,7 +90,7 @@ public class TestProvider extends AndroidTestCase {
         assertEquals(UserEntry.CONTENT_TYPE, type);
 
         // content://com.hitick.app/users/23001
-        type = mContext.getContentResolver().getType(UserEntry.buildUsersUri(23006));
+        type = mContext.getContentResolver().getType(UserEntry.buildUsersUri("23006"));
         // assert to see if we got the correct type
         assertEquals(UserEntry.CONTENT_ITEM_TYPE, type);
 
@@ -105,7 +105,7 @@ public class TestProvider extends AndroidTestCase {
         assertEquals(GroupEntry.CONTENT_TYPE, type);
 
         //content://com.hitick.app/groups/1
-        type = mContext.getContentResolver().getType(GroupEntry.buildGroupsUri(1));
+        type = mContext.getContentResolver().getType(GroupEntry.buildGroupsUri("1"));
         assertEquals(GroupEntry.CONTENT_ITEM_TYPE, type);
 
         // content://com.hitick.app/group_details/A92K14_2K14A9
@@ -128,8 +128,11 @@ public class TestProvider extends AndroidTestCase {
         */
         ContentValues userValues = getUserContentValues();
         Uri userReturnUri = mContext.getContentResolver().insert(UserEntry.CONTENT_URI, userValues);
-        long userRowId = ContentUris.parseId(userReturnUri);
-        assertTrue(userRowId != -1);
+
+        Log.d(LOG_TAG, "testInsertReadProvider: " + userReturnUri.toString());
+
+        String userRowId = DatabaseContract.parseId(userReturnUri);
+        assertTrue(!userRowId.isEmpty() && userRowId!=null);
 
         /*
             Read from the database using our Content Provider to check if we got the row stored
@@ -154,7 +157,7 @@ public class TestProvider extends AndroidTestCase {
             Note that the single user URI can be easily obtained from our Helper Methods in the contract class
         */
         cursor = mContext.getContentResolver().query(
-                UserEntry.buildUsersUri(230002),
+                UserEntry.buildUsersUri("230002"),
                 null,
                 null,
                 null,
@@ -203,7 +206,7 @@ public class TestProvider extends AndroidTestCase {
         }
 
         cursor = mContext.getContentResolver().query(
-                GroupEntry.buildGroupsUri(groupRowId),
+                GroupEntry.buildGroupsUri("230234"),
                 null,
                 null,
                 null,
@@ -320,7 +323,7 @@ public class TestProvider extends AndroidTestCase {
         final String testMobileNumber = "+919953652224";
         final String testPassword = "abc123";
         final String testEmail = "sparsh.bansal17895@gmail.com";
-        long testUserId = 230002;
+        String testUserId = "230002";
 
         /*
             Content Values object to put values into the database
@@ -344,8 +347,8 @@ public class TestProvider extends AndroidTestCase {
         final String testGroupName = "2K14A9";
         final String testGroupPassword = "A92K14";
         final int testGroupMembers = 30;
-        final int testGroupAdminId = 2932434;
-        final long testGroupId = 230234;
+        final String testGroupAdminId = "2932434";
+        final String testGroupId = "230234";
 
         /*
             Clear the content values object and put the data to be inserted in the group table
@@ -368,9 +371,9 @@ public class TestProvider extends AndroidTestCase {
              Now lets try and insert in the table
              Dummy data for group Participation Table
          */
-        final long testGroupId = 230234;
+        final String testGroupId = "230234";
         final int testGroupAdministrator = 1;
-        final long testUserId = 230002;
+        final String testUserId = "230002";
 
         /*Now clear the content values object and put the new data*/
         ContentValues contentValues = new ContentValues();
@@ -385,13 +388,13 @@ public class TestProvider extends AndroidTestCase {
       */
     public ContentValues getGroupDetailsValues() {
          /*Now we insert dummy data into our dynamically created Table*/
-        final long testGroupId = 230234;
+        final String testGroupId = "230234";
         final String testPollTopic = "Mass Bunk Tomorrow?";
         final int testPollOngoing = 1;
         final int testInFavor = 23;
         final int testOpposed = 16;
         final int testNotVoted = 1;
-        final int testPollId = 1240;
+        final String testPollId = "1240";
         final String testPollDatetime = "20151512";
         final int testTimeLeft = 4500;
         final String testPollResult = "Mass Bunk Tomorrow!!";

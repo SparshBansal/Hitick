@@ -26,7 +26,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_USER_TABLE =
                 "CREATE TABLE " + UserEntry.TABLE_NAME + " (" +
 
-                        UserEntry.COLUMN_USER_ID + " INTEGER PRIMARY KEY NOT NULL," +
+                        UserEntry.COLUMN_USER_ID + " TEXT PRIMARY KEY NOT NULL," +
                         UserEntry.COLUMN_USERNAME + " TEXT NOT NULL," +
                         UserEntry.COLUMN_MOBILE_NUMBER + " TEXT NOT NULL, " +
                         UserEntry.COLUMN_EMAIL + " TEXT NOT NULL, " +
@@ -38,7 +38,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_GROUP_TABLE =
                 "CREATE TABLE " + GroupEntry.TABLE_NAME + " (" +
 
-                        GroupEntry.COLUMN_GROUP_ID + " INTEGER PRIMARY KEY NOT NULL, " +
+                        GroupEntry.COLUMN_GROUP_ID + " TEXT PRIMARY KEY NOT NULL, " +
                         GroupEntry.COLUMN_GROUP_NAME + " TEXT NOT NULL, " +
                         GroupEntry.COLUMN_GROUP_PASSWORD + " TEXT NOT NULL, " +
                         GroupEntry.COLUMN_GROUP_MEMBERS + " INTEGER NOT NULL, " +
@@ -49,8 +49,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //Create group details table
         final String SQL_CREATE_GROUP_DETAILS_TABLE =
                 "CREATE TABLE " + GroupDetailsEntry.TABLE_NAME + " (" +
-                        GroupDetailsEntry.COLUMN_GROUP_ID + " INTEGER NOT NULL, " +
-                        GroupDetailsEntry.COLUMN_POLL_ID + " INTEGER NOT NULL, " +
+
+                        GroupDetailsEntry.COLUMN_POLL_ID + " TEXT PRIMARY KEY NOT NULL, " +
+                        GroupDetailsEntry.COLUMN_GROUP_ID + " TEXT NOT NULL, " +
                         GroupDetailsEntry.COLUMN_POLL_DATETIME + " TEXT NOT NULL, " +
                         GroupDetailsEntry.COLUMN_STIPULATED_TIME + " INTEGER NOT NULL, " +
                         GroupDetailsEntry.COLUMN_POLL_ONGOING + " INTEGER NOT NULL, " +
@@ -60,14 +61,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         GroupDetailsEntry.COLUMN_NOT_VOTED + " INTEGER NOT NULL, " +
                         GroupDetailsEntry.COLUMN_POLL_RESULT + " TEXT , " +
 
-                        /*Primary Key Constraint*/
-                        "PRIMARY KEY ( " + GroupDetailsEntry.COLUMN_GROUP_ID + " , " +
-                        GroupDetailsEntry.COLUMN_POLL_ID + " ) , " +
-
                         /*Foreign key Constraint*/
                         "FOREIGN KEY (" + GroupDetailsEntry.COLUMN_GROUP_ID + ")" +
                         " REFERENCES " + GroupEntry.TABLE_NAME + "(" +
                         GroupEntry.COLUMN_GROUP_ID + "), " +
+
                         /*
                             Our Table will have the each poll with a unique id as assigned by the API
                             Therefore we must add a unique constraint on the poll id
@@ -78,8 +76,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_PARTICIPATION_TABLE =
                 "CREATE TABLE " + UserParticipationEntry.TABLE_NAME + " (" +
 
-                        UserParticipationEntry.COLUMN_USER_ID + " INTEGER NOT NULL, " +
-                        UserParticipationEntry.COLUMN_GROUP_ID + " INTEGER NOT NULL, " +
+                        UserParticipationEntry.COLUMN_USER_ID + " TEXT NOT NULL, " +
+                        UserParticipationEntry.COLUMN_GROUP_ID + " TEXT NOT NULL, " +
                         UserParticipationEntry.COLUMN_GROUP_ADMINISTRATOR + " INTEGER NOT NULL, " +
 
                         // Primary Key Constraint

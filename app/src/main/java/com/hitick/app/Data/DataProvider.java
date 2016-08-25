@@ -79,8 +79,8 @@ public class DataProvider extends ContentProvider {
                 break;
 
             case USERS_ID:
-                long userId = ContentUris.parseId(uri);
-                if (userId != -1) {
+                String userId = DatabaseContract.parseId(uri);
+                if (!userId.isEmpty()) {
                     final String SELECTION = UserEntry.COLUMN_USER_ID + "=?";
                     final String[] SELECTION_ARGS = new String[]{String.valueOf(userId)};
                     retCursor = mDatabaseHelper.getWritableDatabase().query(
@@ -111,7 +111,7 @@ public class DataProvider extends ContentProvider {
                 break;
 
             case USER_GROUP_PARTICIPATION_WITH_USER_ID:
-                userId = ContentUris.parseId(uri);
+                userId = DatabaseContract.parseId(uri);
                 retCursor = mDatabaseHelper.getWritableDatabase().query(
                         UserParticipationEntry.TABLE_NAME,
                         projection,
@@ -147,7 +147,7 @@ public class DataProvider extends ContentProvider {
                 retCursor = mDatabaseHelper.getWritableDatabase().query(
                         GroupEntry.TABLE_NAME,
                         projection,
-                        GroupEntry.COLUMN_GROUP_ID + " = " + ContentUris.parseId(uri),
+                        GroupEntry.COLUMN_GROUP_ID + " = " + DatabaseContract.parseId(uri),
                         null,
                         null,
                         null,
@@ -224,9 +224,9 @@ public class DataProvider extends ContentProvider {
                 long _id = mDatabaseHelper
                         .getWritableDatabase()
                         .insert(UserEntry.TABLE_NAME, null, contentValues);
-                if (_id > 0)
-                    returnUri = UserEntry.buildUsersUri(_id);
-                else
+                if (_id > 0) {
+                    returnUri = UserEntry.buildUsersUri(contentValues.getAsString(UserEntry.COLUMN_USER_ID));
+                } else
                     throw new SQLException("Failed to insert row ");
                 break;
 
@@ -248,10 +248,7 @@ public class DataProvider extends ContentProvider {
                         .getWritableDatabase()
                         .insert(GroupEntry.TABLE_NAME, null, contentValues);
                 if (_id > 0) {
-                    returnUri = GroupEntry.buildGroupsUri(_id);
-                    // Notify change on the join uri
-                    getContext().getContentResolver().notifyChange(
-                            Joins.JOIN_BASE_CONTENT_URI, null);
+                    returnUri = GroupEntry.buildGroupsUri(contentValues.getAsString(GroupEntry.COLUMN_GROUP_ID));
                 } else
                     throw new SQLException("Failed to insert row ");
                 break;
@@ -448,7 +445,7 @@ public class DataProvider extends ContentProvider {
             Since every group details query URI will have the table name attached with the
             SUB_CONTENT_URI , therefore we match it with SUB_CONTENT_URI plus the table name.
         */
-        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_GROUP_DETAILS , GROUP_DETAILS);
+        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_GROUP_DETAILS, GROUP_DETAILS);
 
 
         return uriMatcher;

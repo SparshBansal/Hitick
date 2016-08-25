@@ -31,7 +31,7 @@ public class DatabaseContract {
 
     /* Details for the database Helper Class */
     public static final String DATABASE_NAME = "database_hitick";
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 5;
 
     /*
         User Entry -- User Table -- Details of Users
@@ -70,8 +70,8 @@ public class DatabaseContract {
         public static final String COLUMN_USER_ID = "user_id";
 
         /* Helper method to encode the URI's which will be used to query our database */
-        public static final Uri buildUsersUri(long _id) {
-            return ContentUris.withAppendedId(CONTENT_URI, _id);
+        public static Uri buildUsersUri(String _id) {
+            return appendId(CONTENT_URI, _id);
         }
 
     }
@@ -117,9 +117,8 @@ public class DatabaseContract {
 
 
         // Helper method to encode and decode the uris
-        public static final Uri buildUserparticipationUri(long id){
-            Uri returnUri = ContentUris.withAppendedId(CONTENT_URI , id);
-            return returnUri;
+        public static final Uri buildUserparticipationUri(String id){
+            return appendId(CONTENT_URI , id);
         }
     }
 
@@ -157,8 +156,8 @@ public class DatabaseContract {
         /* Helper encoding functions that will be used to create the specific URI's for querying */
 
         //Function for encoding the URI used to query for the group details
-        public static Uri buildGroupsUri(long id) {
-            return ContentUris.withAppendedId(CONTENT_URI, id);
+        public static Uri buildGroupsUri(String id) {
+            return appendId(CONTENT_URI, id);
         }
     }
 
@@ -231,15 +230,24 @@ public class DatabaseContract {
         // Helper method for encoding and decoding uris
 
         // method to construct the uri for poll data with group id
-        public static final Uri buildGroupDetailsUri(long groupId) {
-            return ContentUris.withAppendedId(CONTENT_URI , groupId);
+        public static final Uri buildGroupDetailsUri(String groupId) {
+            return appendId(CONTENT_URI , groupId);
         }
 
         //Method to get the group id from the uri
-        public static final long getGroupIdFromUri (Uri uri){
-            return ContentUris.parseId(uri);
+        public static final String getGroupIdFromUri (Uri uri){
+            return parseId(uri);
         }
     }
+
+    public static String parseId(Uri contentUri) {
+        return contentUri.getLastPathSegment();
+    }
+
+    public static Uri appendId(Uri uri, String id) {
+        return uri.buildUpon().appendEncodedPath(String.valueOf(id)).build();
+    }
+
 
     /**
      * Special class to handle join queries, and notifying change whenever required

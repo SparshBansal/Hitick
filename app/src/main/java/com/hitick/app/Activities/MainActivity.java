@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 );
             case GROUP_DETAILS_LOADER_ID:
                 // The table name will be passed as an argument, so we obtain it from args bundle
-                final long groupId = args.getLong(KEY_ARGS_GROUP_ID);
+                final String groupId = args.getString(KEY_ARGS_GROUP_ID);
                 uri = GroupDetailsEntry.buildGroupDetailsUri(groupId);
                 return new CursorLoader(
                         this,
@@ -182,12 +182,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Cursor cursor = spinnerAdapter.getCursor();
         cursor.moveToPosition(position);
 
-        final long groupID = cursor.getLong(COL_GROUP_ID);
+        final String groupID = cursor.getString(COL_GROUP_ID);
 
         // Now we restart the loader to load the Group Details from the GROUP_DETAILS table
         // Pass the group details table name as an argument in the bundle
         Bundle args = new Bundle();
-        args.putLong(KEY_ARGS_GROUP_ID, groupID);
+        args.putString(KEY_ARGS_GROUP_ID, groupID);
 
         getSupportLoaderManager().restartLoader(GROUP_DETAILS_LOADER_ID, args, this);
     }
