@@ -182,8 +182,7 @@ public class TestDb extends AndroidTestCase {
          /*
             Dummy data for inserting into our users table
         */
-        final String testFirstName = "Sparsh";
-        final String testLastName = "Bansal";
+        final String testUsername = "sparsh_bansal";
         final String testMobileNumber = "+919953652224";
         final String testPassword = "abc123";
         final String testEmail = "sparsh.bansal17895@gmail.com";
@@ -194,8 +193,7 @@ public class TestDb extends AndroidTestCase {
         */
         ContentValues contentValues = new ContentValues();
         contentValues.put(UserEntry.COLUMN_USER_ID , testUserId);
-        contentValues.put(UserEntry.COLUMN_FIRST_NAME, testFirstName);
-        contentValues.put(UserEntry.COLUMN_LAST_NAME, testLastName);
+        contentValues.put(UserEntry.COLUMN_USERNAME , testUsername);
         contentValues.put(UserEntry.COLUMN_MOBILE_NUMBER, testMobileNumber);
         contentValues.put(UserEntry.COLUMN_EMAIL, testEmail);
         contentValues.put(UserEntry.COLUMN_PASSWORD, testPassword);

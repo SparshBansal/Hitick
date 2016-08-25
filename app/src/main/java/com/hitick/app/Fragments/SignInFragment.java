@@ -57,8 +57,7 @@ public class SignInFragment extends Fragment {
 
 
     private static final String KEY_RESPONSE_USER_ID = "id";
-    private static final String KEY_RESPONSE_FIRST_NAME = "firstName";
-    private static final String KEY_RESPONSE_LAST_NAME = "lastName";
+    private static final String KEY_RESPONSE_USERNAME = "username";
     private static final String KEY_RESPONSE_PASSWORD = "password";
     private static final String KEY_RESPONSE_EMAIL = "email";
     private static final String KEY_RESPONSE_MOBILE = "mobileNumber";
@@ -196,16 +195,14 @@ public class SignInFragment extends Fragment {
                 Log.d(LOG_TAG, "parseInsert: Some error occurred");
                 return;
             }
-            final String firstName = personObject.getString(KEY_RESPONSE_FIRST_NAME);
-            final String lastName = personObject.getString(KEY_RESPONSE_LAST_NAME);
+            final String username = personObject.getString(KEY_RESPONSE_USERNAME);
             final String mobileNumber = personObject.getString(KEY_RESPONSE_MOBILE);
             final String email = personObject.getString(KEY_RESPONSE_EMAIL);
             final String password = personObject.getString(KEY_RESPONSE_PASSWORD);
 
 
             ContentValues userValues = new ContentValues();
-            userValues.put(UserEntry.COLUMN_FIRST_NAME, firstName);
-            userValues.put(UserEntry.COLUMN_LAST_NAME, lastName);
+            userValues.put(UserEntry.COLUMN_USERNAME , username);
             userValues.put(UserEntry.COLUMN_MOBILE_NUMBER, mobileNumber);
             userValues.put(UserEntry.COLUMN_EMAIL, email);
             userValues.put(UserEntry.COLUMN_PASSWORD, password);

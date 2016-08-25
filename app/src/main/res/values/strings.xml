@@ -56,7 +56,7 @@
     <!-- Urls to communicate with the server -->
     <!-- Sign In / Sign Up Urls -->
     <string name="URL_SIGN_IN">http://192.168.1.11:3000/api/v1/login</string>
-    <string name="URL_SIGN_UP">http://hitick.underjelastic.com.br/Hitick/app-sign-up</string>
+    <string name="URL_SIGN_UP">http://192.168.1.11:3000/api/v1/signup</string>
     <string name="URL_DETAILS"></string>
 
 

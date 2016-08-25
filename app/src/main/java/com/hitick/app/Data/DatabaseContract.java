@@ -31,7 +31,7 @@ public class DatabaseContract {
 
     /* Details for the database Helper Class */
     public static final String DATABASE_NAME = "database_hitick";
-    public static int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 3;
 
     /*
         User Entry -- User Table -- Details of Users
@@ -52,15 +52,8 @@ public class DatabaseContract {
         */
         public static final String TABLE_NAME = "users";
 
-        /*
-           Column for User's First Name
-        */
-        public static final String COLUMN_FIRST_NAME = "first_name";
-
-        /*
-            Column for User's Last Name
-        */
-        public static final String COLUMN_LAST_NAME = "last_name";
+        // Username of the user
+        public static final String COLUMN_USERNAME = "username";
 
         // User's Mobile Number as provided by the user himself
         public static final String COLUMN_MOBILE_NUMBER = "mobile_number";

@@ -26,13 +26,6 @@ import static com.hitick.app.Data.DatabaseContract.*;
 public class TestProvider extends AndroidTestCase {
     private static final String LOG_TAG = TestProvider.class.getSimpleName();
 
-    /*The name of the group Participation table created at runtime for the user*/
-    private static final String TEST_GROUP_PARTICIPATION_TABLE = "abc123_9953652224";
-
-    /*The name of the group Details table created at runtime for the user*/
-    private static final String TEST_GROUP_DETAILS_TABLE = "A92K14_2K14A9";
-
-
     public void testDeleteAllRecords() {
         //Delete the group details table
         mContext.getContentResolver()
@@ -323,8 +316,7 @@ public class TestProvider extends AndroidTestCase {
          /*
             Dummy data for inserting into our users table
         */
-        final String testFirstName = "Sparsh";
-        final String testLastName = "Bansal";
+        final String testUsername = "sparsh_bansal";
         final String testMobileNumber = "+919953652224";
         final String testPassword = "abc123";
         final String testEmail = "sparsh.bansal17895@gmail.com";
@@ -335,8 +327,7 @@ public class TestProvider extends AndroidTestCase {
         */
         ContentValues contentValues = new ContentValues();
         contentValues.put(UserEntry.COLUMN_USER_ID , testUserId);
-        contentValues.put(UserEntry.COLUMN_FIRST_NAME, testFirstName);
-        contentValues.put(UserEntry.COLUMN_LAST_NAME, testLastName);
+        contentValues.put(UserEntry.COLUMN_USERNAME, testUsername);
         contentValues.put(UserEntry.COLUMN_MOBILE_NUMBER, testMobileNumber);
         contentValues.put(UserEntry.COLUMN_EMAIL, testEmail);
         contentValues.put(UserEntry.COLUMN_PASSWORD, testPassword);

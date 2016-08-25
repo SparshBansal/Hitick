@@ -27,8 +27,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "CREATE TABLE " + UserEntry.TABLE_NAME + " (" +
 
                         UserEntry.COLUMN_USER_ID + " INTEGER PRIMARY KEY NOT NULL," +
-                        UserEntry.COLUMN_FIRST_NAME + " TEXT NOT NULL, " +
-                        UserEntry.COLUMN_LAST_NAME + " TEXT NOT NULL, " +
+                        UserEntry.COLUMN_USERNAME + " TEXT NOT NULL," +
                         UserEntry.COLUMN_MOBILE_NUMBER + " TEXT NOT NULL, " +
                         UserEntry.COLUMN_EMAIL + " TEXT NOT NULL, " +
                         UserEntry.COLUMN_PASSWORD + " TEXT NOT NULL, " +
