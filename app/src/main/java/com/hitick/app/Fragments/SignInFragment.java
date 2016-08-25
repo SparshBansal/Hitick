@@ -26,23 +26,25 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.hitick.app.Data.DatabaseContract;
-import com.hitick.app.Data.DatabaseHelper;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.hitick.app.Data.DatabaseContract.GroupEntry;
+import com.hitick.app.Data.DatabaseContract.UserEntry;
+import com.hitick.app.Data.DatabaseContract.UserParticipationEntry;
 import com.hitick.app.Network.VolleySingleton;
 import com.hitick.app.QuickstartPreferences;
 import com.hitick.app.R;
-import com.hitick.app.Services.HitickGCMRegistrationService;
 import com.hitick.app.Utility;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
-
-import com.hitick.app.Data.DatabaseContract.*;
 
 public class SignInFragment extends Fragment {
 
@@ -52,7 +54,6 @@ public class SignInFragment extends Fragment {
     private static EditText etPassword;
     private static Button bSignIn;
     private static int MOBILE_NUMBER_LENGTH = 10;
-    private GCMRegistrationReceiver mRegistrationBroadcastReceiver;
 
 
     private static final String KEY_RESPONSE_USER_ID = "id";
@@ -74,8 +75,6 @@ public class SignInFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Broadcast receiver to listen for GCM registration token
-        mRegistrationBroadcastReceiver = new GCMRegistrationReceiver();
     }
 
 
@@ -120,17 +119,11 @@ public class SignInFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
-                mRegistrationBroadcastReceiver,
-                new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE)
-        );
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        LocalBroadcastManager
-                .getInstance(getActivity()).unregisterReceiver(mRegistrationBroadcastReceiver);
     }
 
     @Override
@@ -141,40 +134,37 @@ public class SignInFragment extends Fragment {
     }
 
     //Helper method to SignIn to the server
-    boolean signIn() {
+    public boolean signIn() {
 
-        if (Utility.checkPlayServices(getActivity())) {
-            // Start intent service to register with GCM
-            Intent intent = new Intent(getActivity(), HitickGCMRegistrationService.class);
-            getActivity().startService(intent);
-        }
-        return false;
-    }
-
-    public class GCMRegistrationReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(final Context context, Intent intent) {
-
+        final String registrationToken = FirebaseInstanceId.getInstance().getToken();
+        if (registrationToken != null) {
             RequestQueue mRequestQueue = VolleySingleton.getInstance().getRequestQueue();
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             final String mobileNumber = preferences.getString(
-                    context.getResources().getString(R.string.KEY_PREFERENCE_SIGNIN_MOBILE_NUMBER), "");
+                    getActivity().getResources().getString(R.string.KEY_PREFERENCE_SIGNIN_MOBILE_NUMBER), "");
             final String password = preferences.getString(
-                    context.getResources().getString(R.string.KEY_PREFERENCE_SIGNIN_PASSWORD), "");
+                    getActivity().getResources().getString(R.string.KEY_PREFERENCE_SIGNIN_PASSWORD), "");
 
             if (TextUtils.isEmpty(mobileNumber) || TextUtils.isEmpty(password))
-                return;
+                return false;
 
+            String baseUrl = getActivity().getString(R.string.URL_SIGN_IN);
+
+            Uri url = Uri.parse(baseUrl).buildUpon()
+                    .appendQueryParameter("mobile", mobileNumber)
+                    .appendQueryParameter("password", password).build();
+
+            Log.d(LOG_TAG, "signIn: " + url.toString());
             JsonObjectRequest mSignInRequest = new JsonObjectRequest(
-                    Request.Method.POST,
-                    getContext().getString(R.string.URL_SIGN_IN),
+                    Request.Method.GET,
+                    url.toString(),
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             Log.d(LOG_TAG, "Response Received");
+                            Log.d(LOG_TAG, "onResponse: " + response.toString());
                             // Parse the data and then insert in the database
-                            parseInsert(response,context);
+                            // parseInsert(response,context);
                         }
                     },
                     new Response.ErrorListener() {
@@ -187,21 +177,11 @@ public class SignInFragment extends Fragment {
                                     Toast.LENGTH_SHORT)
                                     .show();
                         }
-                    }) {
-                @Override
-                protected Map<String, String> getParams() throws AuthFailureError {
-                    // Put the parameters in the hashmap
-                    Map<String, String> paramsMap = new HashMap<>();
-                    paramsMap.put(getContext().getString(R.string.KEY_SIGNIN_JSON_MOBILE), mobileNumber);
-                    paramsMap.put(getContext().getString(R.string.KEY_SIGNIN_JSON_PASSWORD), password);
-                    paramsMap.put(getContext().getString(R.string.KEY_SIGNIN_JSON_GCM_TOKEN),
-                            Utility.getGCMRegToken(getActivity()));
-                    return paramsMap;
-                }
-            };
+                    });
             mSignInRequest.setTag(REQUEST_TAG);
             mRequestQueue.add(mSignInRequest);
         }
+        return false;
     }
 
     /**
