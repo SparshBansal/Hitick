@@ -57,6 +57,7 @@
     <!-- Sign In / Sign Up Urls -->
     <string name="URL_SIGN_IN">http://192.168.1.11:3000/api/v1/login</string>
     <string name="URL_SIGN_UP">http://192.168.1.11:3000/api/v1/signup</string>
+    <string name="URL_FECTH_LATEST_POLL">http://192.168.1.11:3000/api/v1/poll/past</string>
     <string name="URL_DETAILS"></string>
 
 

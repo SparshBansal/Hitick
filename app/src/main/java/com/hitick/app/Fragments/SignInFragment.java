@@ -35,7 +35,7 @@ import org.json.JSONObject;
 
 import java.util.Vector;
 
-public class SignInFragment extends Fragment {
+public class SignInFragment extends Fragment implements JsonParser.OnLoginListener{
 
     private static final String LOG_TAG = SignInFragment.class.getSimpleName();
     private static final String REQUEST_TAG = "SIGN_IN_TAG";
@@ -134,17 +134,15 @@ public class SignInFragment extends Fragment {
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            Log.d(LOG_TAG, "Response Received");
-                            Log.d(LOG_TAG, "onResponse: " + response.toString());
                             // Parse the data and then insert in the database
-                            JsonParser.parseInsert(response,getActivity());
+                            JsonParser.parseInsert(response,getActivity(),
+                                    (JsonParser.OnLoginListener) getActivity());
                         }
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            //Some Error Occurred
-                            //Notify the User
+                            Log.d(LOG_TAG, "onErrorResponse: Error while fetching data");
                             Toast.makeText(getActivity().getApplicationContext(),
                                     "Please try again",
                                     Toast.LENGTH_SHORT)
@@ -155,5 +153,10 @@ public class SignInFragment extends Fragment {
             mRequestQueue.add(mSignInRequest);
         }
         return false;
+    }
+
+    @Override
+    public void onLogin(boolean status, String message) {
+
     }
 }

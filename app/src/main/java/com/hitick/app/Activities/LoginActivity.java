@@ -1,5 +1,6 @@
 package com.hitick.app.Activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -14,15 +15,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.hitick.app.Fragments.SignInFragment;
 import com.hitick.app.Fragments.SignUpFragment;
+import com.hitick.app.JsonParser;
 import com.hitick.app.R;
 
 import java.util.ArrayList;
 
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements JsonParser.OnLoginListener {
 
     private static final String TITLE_SIGN_IN = "SIGN IN";
     private static final String TITLE_SIGN_UP = "SIGN UP";
@@ -54,8 +57,8 @@ public class LoginActivity extends AppCompatActivity {
         Fragment signInFrag = new SignInFragment();
         Fragment signUpFrag = new SignUpFragment();
 
-        mAdapter.addFragment(signInFrag , TITLE_SIGN_IN);
-        mAdapter.addFragment(signUpFrag , TITLE_SIGN_UP);
+        mAdapter.addFragment(signInFrag, TITLE_SIGN_IN);
+        mAdapter.addFragment(signUpFrag, TITLE_SIGN_UP);
 
         viewPager.setAdapter(mAdapter);
     }
@@ -83,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     // Adapter class for the tabs
-    class ViewPagerAdapter extends FragmentPagerAdapter{
+    class ViewPagerAdapter extends FragmentPagerAdapter {
 
         private ArrayList<Fragment> fragmentList = new ArrayList<>();
         private ArrayList<String> fragmentTitleList = new ArrayList<>();
@@ -92,7 +95,7 @@ public class LoginActivity extends AppCompatActivity {
             super(fm);
         }
 
-        public void addFragment(Fragment fragment , String fragmentTitle){
+        public void addFragment(Fragment fragment, String fragmentTitle) {
             fragmentList.add(fragment);
             fragmentTitleList.add(fragmentTitle);
         }
@@ -110,6 +113,16 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         public CharSequence getPageTitle(int position) {
             return fragmentTitleList.get(position);
+        }
+    }
+
+    @Override
+    public void onLogin(boolean status, String message) {
+        if (status) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        } else {
+            Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -2,6 +2,7 @@ package com.hitick.app;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import com.hitick.app.Data.DatabaseContract;
@@ -31,20 +32,32 @@ public class JsonParser {
     private static final String KEY_RESPONSE_MEMBER_COUNT = "groupMembers";
     private static final String KEY_RESPONSE_GROUP_ID = "_id";
 
+    private static final String KEY_RESPONSE_ERROR = "error";
+
     private static final String TAG = JsonParser.class.getSimpleName();
 
 
     /**
      * Helper method to parse the data and insert into the database
      */
-    public static void parseInsert(JSONObject response, Context context) {
+    public static void parseInsert(JSONObject response, Context context , OnLoginListener mListener) {
         try {
             Log.d(TAG, "parseInsert: " + response.toString());
-            final String userId = response.getString(KEY_RESPONSE_USER_ID);
-            if (userId.isEmpty()) {
-                Log.d(TAG, "parseInsert: Some error occurred");
+
+            if (response.has(KEY_RESPONSE_ERROR)) {
+                mListener.onLogin(false, response.getString(KEY_RESPONSE_ERROR));
                 return;
             }
+
+            final String userId = response.getString(KEY_RESPONSE_USER_ID);
+
+            if (userId.isEmpty()) {
+                Log.d(TAG, "parseInsert: Some error occurred");
+                mListener.onLogin(false , "Please try again");
+                return;
+            }
+
+            Utility.saveCurrentUserId(context , userId);
 
             final String username = response.getString(KEY_RESPONSE_USERNAME);
             final String mobileNumber = response.getString(KEY_RESPONSE_MOBILE);
@@ -107,8 +120,15 @@ public class JsonParser {
                 upVector.toArray(upArray);
                 context.getContentResolver().bulkInsert(DatabaseContract.UserParticipationEntry.CONTENT_URI, upArray);
             }
+            mListener.onLogin(true , "Logged in Successfully");
         } catch (JSONException e) {
             e.printStackTrace();
+            Log.e(TAG, "parseInsert: " + "JSON couldn't be parsed");
+            mListener.onLogin(false , "JSON couldn't be parsed");
         }
+    }
+
+    public interface OnLoginListener {
+        void onLogin(boolean status, String message);
     }
 }

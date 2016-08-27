@@ -84,6 +84,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "PRIMARY KEY ( " + UserParticipationEntry.COLUMN_USER_ID + "," +
                         UserParticipationEntry.COLUMN_GROUP_ID + " ), " +
 
+                        // Uniquer Constraint
+                        "UNIQUE ( " + UserParticipationEntry.COLUMN_GROUP_ID + "," +
+                        UserParticipationEntry.COLUMN_USER_ID + " ) ON CONFLICT REPLACE, " +
+
                         // Foreign Key Constraints
                         "FOREIGN KEY (" + UserParticipationEntry.COLUMN_USER_ID + ") REFERENCES " +
                         UserEntry.TABLE_NAME + "(" + UserEntry.COLUMN_USER_ID + "), " +

@@ -24,11 +24,11 @@ public class Utility {
     private static final String LOG_TAG = Utility.class.getSimpleName();
 
     // Static method to get the Unique User Id assigned to the user by the server
-    public static long getCurrentUserId(Context context){
+    public static String getCurrentUserId(Context context){
         // Read from the default Shared Preference
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        final long userId = preferences.getLong(
-                context.getString(R.string.KEY_CURRENT_USER_ID),-1);
+        final String userId = preferences.getString(
+                context.getString(R.string.KEY_CURRENT_USER_ID),"");
         return userId;
     }
 
@@ -75,4 +75,10 @@ public class Utility {
             return regToken;
     }
 
+    public static void saveCurrentUserId(Context context, String userId) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(context.getResources().getString(R.string.KEY_CURRENT_USER_ID),userId);
+        editor.commit();
+    }
 }

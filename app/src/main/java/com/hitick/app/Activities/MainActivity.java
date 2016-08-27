@@ -3,29 +3,40 @@ package com.hitick.app.Activities;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 
+import com.hitick.app.Adapters.HitickPollViewAdapter;
+import com.hitick.app.Adapters.HitickSpinnerAdapter;
 import com.hitick.app.Data.DatabaseContract;
 import com.hitick.app.Data.DatabaseContract.GroupEntry;
 import com.hitick.app.Data.DatabaseContract.*;
 import com.hitick.app.R;
+import com.hitick.app.Services.HitickPollUpdateService;
 import com.hitick.app.Utility;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         AdapterView.OnItemSelectedListener {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
+
     private static Toolbar toolbar;
     private static Spinner spinner;
-    private static SimpleCursorAdapter spinnerAdapter;
+    private static HitickSpinnerAdapter spinnerAdapter;
+    private static HitickPollViewAdapter hitickPollViewAdapter;
+    private static RecyclerView rvPollView;
 
     // Loader ID for loading the data for the spinner and Main Content View
     private static final int SPINNER_LOADER_ID = 100;
@@ -36,10 +47,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     // PROJECTIONS for the join query used
     private static final String[] USER_PARTICIPATION_WITH_GROUPS_PROJECTION = new String[]{
-            UserParticipationEntry.COLUMN_GROUP_ADMINISTRATOR,
-            GroupEntry.COLUMN_GROUP_ID,
-            GroupEntry.COLUMN_GROUP_MEMBERS,
-            GroupEntry.COLUMN_GROUP_NAME,
+            UserParticipationEntry.TABLE_NAME + "." + UserParticipationEntry.COLUMN_GROUP_ADMINISTRATOR,
+            GroupEntry.TABLE_NAME + "." + GroupEntry.COLUMN_GROUP_ID + " AS " + GroupEntry._ID,
+            GroupEntry.TABLE_NAME + "." + GroupEntry.COLUMN_GROUP_MEMBERS,
+            GroupEntry.TABLE_NAME + "." + GroupEntry.COLUMN_GROUP_NAME,
     };
 
     // Integer Constants corresponding to each item in the projections array
@@ -75,20 +86,26 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
 
         // Setup the instance variable
-        toolbar = (Toolbar) findViewById(R.id.mainActivityToolbar);
-        spinner = (Spinner) findViewById(R.id.mainActivitySpinner);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        spinner = (Spinner) findViewById(R.id.spinner_group_spinner);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        spinnerAdapter = new HitickSpinnerAdapter(this , null , false);
+        rvPollView = (RecyclerView) findViewById(R.id.rv_poll_view);
 
         // Initialize the loader
         getSupportLoaderManager().initLoader(SPINNER_LOADER_ID, null, this);
 
-        spinnerAdapter = new SimpleCursorAdapter(this,
-                android.R.layout.simple_list_item_2,
-                null,
-                new String[]{GroupEntry.COLUMN_GROUP_NAME, GroupEntry.COLUMN_GROUP_MEMBERS},
-                new int[]{android.R.id.text1, android.R.id.text2});
 
         spinner.setAdapter(spinnerAdapter);
         spinner.setOnItemSelectedListener(this);
+
+        hitickPollViewAdapter = new HitickPollViewAdapter(this);
+        rvPollView.setLayoutManager(new LinearLayoutManager(this));
+        rvPollView.setAdapter(hitickPollViewAdapter);
     }
 
 
@@ -131,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 // The table name will be passed as an argument, so we obtain it from args bundle
                 final String groupId = args.getString(KEY_ARGS_GROUP_ID);
                 uri = GroupDetailsEntry.buildGroupDetailsUri(groupId);
+                Log.d(TAG, "onCreateLoader: " + uri.toString());
                 return new CursorLoader(
                         this,
                         uri,
@@ -154,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 spinnerAdapter.swapCursor(data);
                 break;
             case GROUP_DETAILS_LOADER_ID:
-                /*TODO -- Update the viewPager and listView*/
+                hitickPollViewAdapter.swapCursor(data);
                 break;
         }
     }
@@ -183,6 +201,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         cursor.moveToPosition(position);
 
         final String groupID = cursor.getString(COL_GROUP_ID);
+        final long timestamp = System.currentTimeMillis();
+
+        // Start the service to fetch the latest polls
+        HitickPollUpdateService.startPollUpdate(this , groupID , String.valueOf(timestamp) , 20);
 
         // Now we restart the loader to load the Group Details from the GROUP_DETAILS table
         // Pass the group details table name as an argument in the bundle

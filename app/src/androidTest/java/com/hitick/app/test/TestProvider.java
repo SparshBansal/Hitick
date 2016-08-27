@@ -294,7 +294,7 @@ public class TestProvider extends AndroidTestCase {
 
         // Test our join actually works
         cursor = mContext.getContentResolver().query(
-                Joins.buildUserPartcipationWithGroupUri(230002),
+                Joins.buildUserPartcipationWithGroupUri("230002"),
                 null,
                 null,
                 null,

@@ -5,25 +5,25 @@
     android:orientation="vertical"
     tools:context="com.hitick.app.Activities.MainActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/mainActivityToolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize"
-        android:background="@color/colorPrimary">
-
-        <Spinner
-            android:id="@+id/mainActivitySpinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"></Spinner>
-    </android.support.v7.widget.Toolbar>
-
-    <TextView
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
-        android:gravity="center_horizontal"
-        android:padding="@dimen/signup_editText_padding"
-        android:text="Mass Bunk Tomorrow!"
-        android:textSize="@dimen/main_activity_question_font_size" />
+        android:background="@color/colorPrimary">
 
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?android:actionBarSize" />
+
+        <Spinner
+            android:id="@+id/spinner_group_spinner"
+            android:layout_width="256dp"
+            android:layout_height="wrap_content" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_poll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </LinearLayout>

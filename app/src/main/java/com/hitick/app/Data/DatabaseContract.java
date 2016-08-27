@@ -31,7 +31,7 @@ public class DatabaseContract {
 
     /* Details for the database Helper Class */
     public static final String DATABASE_NAME = "database_hitick";
-    public static final int DATABASE_VERSION = 9;
+    public static final int DATABASE_VERSION = 12;
 
     /*
         User Entry -- User Table -- Details of Users
@@ -274,7 +274,7 @@ public class DatabaseContract {
                 CONTENT_AUTHORITY + "/" + PATH_JOIN + "/" + PATH_USER_PARTICPIATION_WITH_GROUPS;
 
         // Method to create a join query uri between User-Participation-Table and Group-Table
-        public static final Uri buildUserPartcipationWithGroupUri(long userId) {
+        public static final Uri buildUserPartcipationWithGroupUri(String userId) {
             return JOIN_BASE_CONTENT_URI.buildUpon()
                     .appendPath(PATH_USER_PARTICPIATION_WITH_GROUPS)
                     .appendQueryParameter(KEY_USER_PARTICIPATION_USER_ID, String.valueOf(userId))

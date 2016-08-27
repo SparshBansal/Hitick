@@ -40,8 +40,8 @@ public class DataProvider extends ContentProvider {
     private static final int USER_PARTICIPATION_WITH_GROUP = 103;
     private static final int GROUPS = 104;
     private static final int GROUPS_ID = 105;
-    private static final int GROUP_DETAILS = 106;
-
+    private static final int GROUP_DETAILS_WITH_ID = 106;
+    private static final int GROUP_DETAILS = 107;
 
     /*
         We Initialize the database helper in the onCreate() Method and return true for
@@ -156,17 +156,18 @@ public class DataProvider extends ContentProvider {
                 break;
 
 
-            case GROUP_DETAILS:
-                // First get the table name from the URI
-                String groupDetailsTableName = GroupDetailsEntry.
-                        TABLE_NAME;
+            case GROUP_DETAILS_WITH_ID:
+                String groupId = DatabaseContract.parseId(uri);
+
+                final String querySelection = GroupDetailsEntry.COLUMN_GROUP_ID + " =? ";
+                final String[] querySelectionArgs = new String[]{groupId};
 
                 // Now query the database
                 retCursor = mDatabaseHelper.getWritableDatabase().query(
-                        groupDetailsTableName,
+                        GroupDetailsEntry.TABLE_NAME,
                         projection,
-                        selection,
-                        selectionArgs,
+                        querySelection,
+                        querySelectionArgs,
                         null,
                         null,
                         sortOrder
@@ -206,7 +207,7 @@ public class DataProvider extends ContentProvider {
                 return GroupEntry.CONTENT_TYPE;
             case GROUPS_ID:
                 return GroupEntry.CONTENT_ITEM_TYPE;
-            case GROUP_DETAILS:
+            case GROUP_DETAILS_WITH_ID:
                 return GroupDetailsEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown Uri : " + uri);
@@ -427,13 +428,13 @@ public class DataProvider extends ContentProvider {
          we can do the respective query */
 
         uriMatcher.addURI(CONTENT_AUTHORITY, PATH_USERS, USERS);
-        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_USERS + "/#", USERS_ID);
+        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_USERS + "/*", USERS_ID);
         /*
             Since every group participation query URI will have the table name attached with the
             SUB_CONTENT_URI , therefore we match it with SUB_CONTENT_URI plus the table name.
         */
         uriMatcher.addURI(CONTENT_AUTHORITY, PATH_USER_PARTICIPATION, USER_GROUP_PARTICIPATION);
-        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_USER_PARTICIPATION + "/#", USER_GROUP_PARTICIPATION_WITH_USER_ID);
+        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_USER_PARTICIPATION + "/*", USER_GROUP_PARTICIPATION_WITH_USER_ID);
         /* Special Uri for join between user-participation and groups table */
         uriMatcher.addURI(CONTENT_AUTHORITY,
                 Joins.PATH_JOIN +
@@ -441,13 +442,14 @@ public class DataProvider extends ContentProvider {
                 USER_PARTICIPATION_WITH_GROUP);
 
         uriMatcher.addURI(CONTENT_AUTHORITY, PATH_GROUPS, GROUPS);
-        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_GROUPS + "/#", GROUPS_ID);
+        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_GROUPS + "/*", GROUPS_ID);
 
         /*
             Since every group details query URI will have the table name attached with the
             SUB_CONTENT_URI , therefore we match it with SUB_CONTENT_URI plus the table name.
         */
-        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_GROUP_DETAILS, GROUP_DETAILS);
+        uriMatcher.addURI(CONTENT_AUTHORITY , PATH_GROUP_DETAILS ,  GROUP_DETAILS);
+        uriMatcher.addURI(CONTENT_AUTHORITY, PATH_GROUP_DETAILS + "/*" , GROUP_DETAILS_WITH_ID);
 
 
         return uriMatcher;
@@ -470,7 +472,7 @@ public class DataProvider extends ContentProvider {
         return mUserParticipationWithGroupQueryBuilder.query(
                 mDatabaseHelper.getReadableDatabase(),
                 projection,
-                new String(UserParticipationEntry.COLUMN_USER_ID + " = ?"),
+                UserParticipationEntry.TABLE_NAME + "." +UserParticipationEntry.COLUMN_USER_ID + " = ?",
                 new String[]{userId},
                 null,
                 null,

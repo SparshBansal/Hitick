@@ -49,7 +49,7 @@ import static com.hitick.app.Data.DatabaseContract.UserParticipationEntry;
 /**
  * Created by Sparsha on 12/7/2015.
  */
-public class SignUpFragment extends Fragment implements View.OnClickListener {
+public class SignUpFragment extends Fragment implements View.OnClickListener,JsonParser.OnLoginListener {
 
 
     private static final String LOG_TAG = SignUpFragment.class.getSimpleName();
@@ -132,10 +132,8 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        /**Parse the response from the server and insert the user
-                         * details into the database*/
-                        Log.d(LOG_TAG, "Response Received");
-                        JsonParser.parseInsert(response, getContext());
+                        JsonParser.parseInsert(response, getContext() ,
+                                (JsonParser.OnLoginListener) getActivity());
                     }
                 },
                 new Response.ErrorListener() {
@@ -182,5 +180,10 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     private void validateMobileNumber() {
         final int VERIFICATION_CODE = Utility.generateVerificationCode();
         Utility.sendSMS(getActivity(), VERIFICATION_CODE);
+    }
+
+    @Override
+    public void onLogin(boolean status, String message) {
+
     }
 }

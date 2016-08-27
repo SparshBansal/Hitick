@@ -25,11 +25,11 @@
 
         <provider
             android:name=".Data.DataProvider"
-            android:authorities="com.hitick.app"/>
+            android:authorities="com.hitick.app" />
 
         <activity
             android:name=".Activities.MainActivity"
-            android:label="@string/title_activity_main"/>
+            android:label="@string/title_activity_main" />
 
         <service
             android:name=".Services.HitickInstanceIdListenerService"
@@ -38,6 +38,9 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+        <service
+            android:name=".Services.HitickPollUpdateService"
+            android:exported="false"></service>
     </application>
 
 </manifest>
