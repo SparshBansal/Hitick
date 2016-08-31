@@ -38,9 +38,16 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+
+        <service android:name=".Services.HitickFcmListenerService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
         <service
             android:name=".Services.HitickPollUpdateService"
-            android:exported="false"></service>
+            android:exported="false"/>
     </application>
 
 </manifest>

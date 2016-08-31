@@ -30,17 +30,68 @@ public class JsonParser {
     private static final String KEY_RESPONSE_GROUP_PASSWORD = "groupPassword";
     private static final String KEY_RESPONSE_GROUP_ADMIN_ID = "adminId";
     private static final String KEY_RESPONSE_MEMBER_COUNT = "groupMembers";
-    private static final String KEY_RESPONSE_GROUP_ID = "_id";
+    private static final String KEY_GROUP_RESPONSE_GROUP_ID = "_id";
+
+    private static final String KEY_RESPONSE_POLL_TOPIC = "pollTopic";
+    private static final String KEY_RESPONSE_IN_FAVOR = "inFavor";
+    private static final String KEY_RESPONSE_OPPOSED = "opposed";
+    private static final String KEY_RESPONSE_NOT_VOTED = "notVoted";
+
+    private static final String KEY_RESPONSE_GROUP_ID = "groupId";
+    private static final String KEY_RESPONSE_POLL_ID = "_id";
+    private static final String KEY_RESPONSE_STIPULATED_TIME = "stipulatedTime";
+    private static final String KEY_RESPONSE_POLL_RESULT = "result";
+    private static final String KEY_RESPONSE_DATETIME = "submittedAt";
+    private static final String KEY_RESPONSE_POLL_ONGOING = "ongoing";
 
     private static final String KEY_RESPONSE_ERROR = "error";
 
     private static final String TAG = JsonParser.class.getSimpleName();
 
 
+    public static ContentValues parsePoll(JSONObject poll) {
+        try {
+
+            final String pollId = poll.getString(KEY_RESPONSE_POLL_ID);
+            final String groupId = poll.getString(KEY_RESPONSE_GROUP_ID);
+
+            final String pollTopic = poll.getString(KEY_RESPONSE_POLL_TOPIC);
+            final int inFavor = poll.getInt(KEY_RESPONSE_IN_FAVOR);
+            final int opposed = poll.getInt(KEY_RESPONSE_OPPOSED);
+            final int notVoted = poll.getInt(KEY_RESPONSE_NOT_VOTED);
+            final String result = poll.getString(KEY_RESPONSE_POLL_RESULT);
+            final boolean ongoing = poll.getBoolean(KEY_RESPONSE_POLL_ONGOING);
+
+            final String datetime = poll.getString(KEY_RESPONSE_DATETIME);
+            final String stipulatedTime = poll.getString(KEY_RESPONSE_STIPULATED_TIME);
+
+            // Insert in the database
+            ContentValues contentValues = new ContentValues();
+
+            contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_POLL_ID, pollId);
+            contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_GROUP_ID, groupId);
+            contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_POLL_TOPIC, pollTopic);
+            contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_IN_FAVOR, inFavor);
+            contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_OPPOSED, opposed);
+            contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_NOT_VOTED, notVoted);
+            contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_STIPULATED_TIME, stipulatedTime);
+            contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_POLL_DATETIME, datetime);
+            contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_POLL_RESULT, result);
+            contentValues.put(DatabaseContract.GroupDetailsEntry.COLUMN_POLL_ONGOING, ongoing);
+
+            return contentValues;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     /**
      * Helper method to parse the data and insert into the database
      */
-    public static void parseInsert(JSONObject response, Context context , OnLoginListener mListener) {
+    public static void parseInsertGroups(JSONObject response, Context context,
+                                         OnLoginListener mListener) {
         try {
             Log.d(TAG, "parseInsert: " + response.toString());
 
@@ -53,11 +104,11 @@ public class JsonParser {
 
             if (userId.isEmpty()) {
                 Log.d(TAG, "parseInsert: Some error occurred");
-                mListener.onLogin(false , "Please try again");
+                mListener.onLogin(false, "Please try again");
                 return;
             }
 
-            Utility.saveCurrentUserId(context , userId);
+            Utility.saveCurrentUserId(context, userId);
 
             final String username = response.getString(KEY_RESPONSE_USERNAME);
             final String mobileNumber = response.getString(KEY_RESPONSE_MOBILE);
@@ -90,7 +141,7 @@ public class JsonParser {
 
                 JSONObject groupObject = groupListArray.getJSONObject(i);
 
-                final String groupId = groupObject.getString(KEY_RESPONSE_GROUP_ID);
+                final String groupId = groupObject.getString(KEY_GROUP_RESPONSE_GROUP_ID);
                 final int groupMemberCount = groupObject.getInt(KEY_RESPONSE_MEMBER_COUNT);
                 final String groupName = groupObject.getString(KEY_RESPONSE_GROUP_NAME);
                 final String groupPassword = groupObject.getString(KEY_RESPONSE_GROUP_PASSWORD);
@@ -120,12 +171,39 @@ public class JsonParser {
                 upVector.toArray(upArray);
                 context.getContentResolver().bulkInsert(DatabaseContract.UserParticipationEntry.CONTENT_URI, upArray);
             }
-            mListener.onLogin(true , "Logged in Successfully");
+            mListener.onLogin(true, "Logged in Successfully");
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "parseInsert: " + "JSON couldn't be parsed");
-            mListener.onLogin(false , "JSON couldn't be parsed");
+            mListener.onLogin(false, "JSON couldn't be parsed");
         }
+    }
+
+    public static void parseInsertPolls(JSONArray response, Context context) {
+        Vector<ContentValues> cvVector = new Vector<>();
+
+        for (int i = 0; i < response.length(); i++) {
+            try {
+                JSONObject poll = response.getJSONObject(i);
+                ContentValues values = parsePoll(poll);
+                if (values != null)
+                    cvVector.add(values);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            if (cvVector.size() > 0) {
+                ContentValues[] cvArray = new ContentValues[cvVector.size()];
+                cvVector.toArray(cvArray);
+                context.getContentResolver().bulkInsert(DatabaseContract.GroupDetailsEntry.CONTENT_URI, cvArray);
+            }
+        }
+    }
+
+    public static void parseInsertPoll(JSONObject poll, Context context) {
+        ContentValues values = parsePoll(poll);
+        if (values != null)
+            context.getContentResolver()
+                    .insert(DatabaseContract.GroupDetailsEntry.CONTENT_URI, values);
     }
 
     public interface OnLoginListener {

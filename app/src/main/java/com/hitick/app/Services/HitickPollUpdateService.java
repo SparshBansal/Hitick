@@ -14,6 +14,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.hitick.app.Data.DatabaseContract;
+import com.hitick.app.JsonParser;
 import com.hitick.app.Network.VolleySingleton;
 import com.hitick.app.R;
 import com.hitick.app.Utility;
@@ -41,17 +42,7 @@ public class HitickPollUpdateService extends IntentService {
     private static final String KEY_QUERY_PARAM_BATCH_SIZE = "batchSize";
     private static final String KEY_QUERY_PARAM_USER_ID = "userId";
 
-    private static final String KEY_RESPONSE_POLL_TOPIC = "pollTopic";
-    private static final String KEY_RESPONSE_IN_FAVOR = "inFavor";
-    private static final String KEY_RESPONSE_OPPOSED = "opposed";
-    private static final String KEY_RESPONSE_NOT_VOTED = "notVoted";
 
-    private static final String KEY_RESPONSE_GROUP_ID = "groupId";
-    private static final String KEY_RESPONSE_POLL_ID = "_id";
-    private static final String KEY_RESPONSE_STIPULATED_TIME = "stipulatedTime";
-    private static final String KEY_RESPONSE_POLL_RESULT = "result";
-    private static final String KEY_RESPONSE_DATETIME = "submittedAt";
-    private static final String KEY_RESPONSE_POLL_ONGOING = "ongoing";
 
 
     private static final String TAG = HitickPollUpdateService.class.getSimpleName();
@@ -104,50 +95,7 @@ public class HitickPollUpdateService extends IntentService {
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
-
-                        Vector<ContentValues> cvVector = new Vector<>();
-
-                        for (int i=0 ; i<response.length() ; i++){
-                            try {
-                                JSONObject poll = response.getJSONObject(i);
-
-                                final String pollId = poll.getString(KEY_RESPONSE_POLL_ID);
-                                final String groupId = poll.getString(KEY_RESPONSE_GROUP_ID);
-
-                                final String pollTopic = poll.getString(KEY_RESPONSE_POLL_TOPIC);
-                                final int inFavor = poll.getInt(KEY_RESPONSE_IN_FAVOR);
-                                final int opposed = poll.getInt(KEY_RESPONSE_OPPOSED);
-                                final int notVoted = poll.getInt(KEY_RESPONSE_NOT_VOTED);
-                                final String result = poll.getString(KEY_RESPONSE_POLL_RESULT);
-                                final boolean ongoing = poll.getBoolean(KEY_RESPONSE_POLL_ONGOING);
-
-                                final String datetime = poll.getString(KEY_RESPONSE_DATETIME);
-                                final String stipulatedTime = poll.getString(KEY_RESPONSE_STIPULATED_TIME);
-
-                                // Insert in the database
-                                ContentValues contentValues = new ContentValues();
-
-                                contentValues.put(GroupDetailsEntry.COLUMN_POLL_ID , pollId);
-                                contentValues.put(GroupDetailsEntry.COLUMN_GROUP_ID , groupId);
-                                contentValues.put(GroupDetailsEntry.COLUMN_POLL_TOPIC , pollTopic);
-                                contentValues.put(GroupDetailsEntry.COLUMN_IN_FAVOR , inFavor);
-                                contentValues.put(GroupDetailsEntry.COLUMN_OPPOSED , opposed);
-                                contentValues.put(GroupDetailsEntry.COLUMN_NOT_VOTED , notVoted);
-                                contentValues.put(GroupDetailsEntry.COLUMN_STIPULATED_TIME , stipulatedTime);
-                                contentValues.put(GroupDetailsEntry.COLUMN_POLL_DATETIME , datetime);
-                                contentValues.put(GroupDetailsEntry.COLUMN_POLL_RESULT , result);
-                                contentValues.put(GroupDetailsEntry.COLUMN_POLL_ONGOING , ongoing);
-
-                                cvVector.add(contentValues);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            if (cvVector.size() > 0){
-                                ContentValues[] cvArray = new ContentValues[cvVector.size()];
-                                cvVector.toArray(cvArray);
-                                getContentResolver().bulkInsert(GroupDetailsEntry.CONTENT_URI , cvArray);
-                            }
-                        }
+                        JsonParser.parseInsertPolls(response , getApplicationContext());
                     }
                 },
                 new Response.ErrorListener() {

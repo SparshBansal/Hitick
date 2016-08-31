@@ -125,7 +125,9 @@ public class SignInFragment extends Fragment implements JsonParser.OnLoginListen
 
             Uri url = Uri.parse(baseUrl).buildUpon()
                     .appendQueryParameter("mobile", mobileNumber)
-                    .appendQueryParameter("password", password).build();
+                    .appendQueryParameter("password", password)
+                    .appendQueryParameter("gcmRegId" , registrationToken)
+                    .build();
 
             Log.d(LOG_TAG, "signIn: " + url.toString());
             JsonObjectRequest mSignInRequest = new JsonObjectRequest(
@@ -135,7 +137,7 @@ public class SignInFragment extends Fragment implements JsonParser.OnLoginListen
                         @Override
                         public void onResponse(JSONObject response) {
                             // Parse the data and then insert in the database
-                            JsonParser.parseInsert(response,getActivity(),
+                            JsonParser.parseInsertGroups(response,getActivity(),
                                     (JsonParser.OnLoginListener) getActivity());
                         }
                     },

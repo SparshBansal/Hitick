@@ -132,7 +132,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener,Jso
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        JsonParser.parseInsert(response, getContext() ,
+                        JsonParser.parseInsertGroups(response, getContext() ,
                                 (JsonParser.OnLoginListener) getActivity());
                     }
                 },
