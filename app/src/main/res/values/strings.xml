@@ -64,4 +64,7 @@
     <!-- Keys for storing the details of the currently active user -->
     <string name="KEY_CURRENT_USER_ID">KEY_CURRENT_USER_ID</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

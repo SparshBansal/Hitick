@@ -3,12 +3,14 @@ package com.hitick.app.Adapters;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.hitick.app.Activities.MainActivity;
+import com.hitick.app.Fragments.PollListFragment;
 import com.hitick.app.R;
 
 /**
@@ -16,6 +18,8 @@ import com.hitick.app.R;
  */
 public class HitickPollViewAdapter extends
         HitickPollViewCursorAdapter<HitickPollViewAdapter.PollViewHolder> {
+
+    private static final String TAG = HitickPollViewAdapter.class.getSimpleName();
 
     private final Context context;
 
@@ -29,10 +33,10 @@ public class HitickPollViewAdapter extends
             cursor.moveToPosition(position);
 
             // Set the data in the views
-            viewHolder.tvPollTopic.setText(cursor.getString(MainActivity.COL_POLL_TOPIC));
-            viewHolder.tvInFavor.setText(String.valueOf(cursor.getInt(MainActivity.COL_IN_FAVOR)));
-            viewHolder.tvOpposed.setText(String.valueOf(cursor.getInt(MainActivity.COL_OPPOSED)));
-            viewHolder.tvNotVoted.setText(String.valueOf(cursor.getInt(MainActivity.COL_NOT_VOTED)));
+            viewHolder.tvPollTopic.setText(cursor.getString(PollListFragment.COL_POLL_TOPIC));
+            viewHolder.tvInFavor.setText(String.valueOf(cursor.getInt(PollListFragment.COL_IN_FAVOR)));
+            viewHolder.tvOpposed.setText(String.valueOf(cursor.getInt(PollListFragment.COL_OPPOSED)));
+            viewHolder.tvNotVoted.setText(String.valueOf(cursor.getInt(PollListFragment.COL_NOT_VOTED)));
         }
     }
 
@@ -45,7 +49,7 @@ public class HitickPollViewAdapter extends
         return viewHolder;
     }
 
-    public class PollViewHolder extends RecyclerView.ViewHolder {
+    public class PollViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public TextView tvPollTopic;
         public TextView tvInFavor;
@@ -54,11 +58,17 @@ public class HitickPollViewAdapter extends
 
         public PollViewHolder(View itemView) {
             super(itemView);
-
             tvPollTopic = (TextView) itemView.findViewById(R.id.tv_poll_topic);
             tvInFavor = (TextView) itemView.findViewById(R.id.tv_in_favor);
             tvOpposed = (TextView) itemView.findViewById(R.id.tv_opposed);
             tvNotVoted = (TextView) itemView.findViewById(R.id.tv_not_voted);
+
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            Log.d(TAG, "onClick: " + getAdapterPosition());
         }
     }
 }

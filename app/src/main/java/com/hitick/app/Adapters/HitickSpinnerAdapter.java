@@ -10,6 +10,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.hitick.app.Activities.MainActivity;
+import com.hitick.app.Fragments.PollListFragment;
 import com.hitick.app.R;
 
 /**
@@ -31,6 +32,6 @@ public class HitickSpinnerAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         TextView textView = (TextView) view.findViewById(R.id.tv_group_name);
-        textView.setText(cursor.getString(MainActivity.COL_GROUP_NAME));
+        textView.setText(cursor.getString(PollListFragment.COL_GROUP_NAME));
     }
 }

@@ -15,15 +15,12 @@
             android:layout_width="match_parent"
             android:layout_height="?android:actionBarSize" />
 
-        <Spinner
-            android:id="@+id/spinner_group_spinner"
-            android:layout_width="256dp"
-            android:layout_height="wrap_content" />
-
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_poll_view"
+    <fragment
+        android:id="@+id/poll_list_fragment"
+        android:name="com.hitick.app.Fragments.PollListFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        tools:layout="@layout/fragment_poll_list" />
 </LinearLayout>
